@@ -34,20 +34,19 @@ const Util = {
             reader.readAsDataURL(file);
         });
     },
-
-    // ---------- HTTP POST Helper ----------
-    postJSON: async function (body) {
-        try {
-            const res = await fetch(CONFIG.WEBAPP_URL, {
-                method: "POST",
-                body: JSON.stringify(body)
-                // ← TIADA headers!
-            });
-            return await res.json();
-        } catch (e) {
-            return { ok:false, message:"Gagal sambungan ke server." };
-        }
-    },
+   // ---------- HTTP POST Helper ----------
+postJSON: async function (body) {
+    try {
+        const res = await fetch(CONFIG.WEBAPP_URL, {
+            method: "POST",
+            headers: { "Content-Type": "text/plain" },  // ← text/plain!
+            body: JSON.stringify(body)
+        });
+        return await res.json();
+    } catch (e) {
+        return { ok:false, message:"Gagal sambungan ke server." };
+    }
+},
     // ---------- Simpan Token Login ----------
     saveToken: function (token, role) {
         sessionStorage.setItem(CONFIG.TOKEN_KEY, token);
@@ -78,4 +77,5 @@ const Util = {
 
 // Expose to global
 window.Util = Util;
+
 
