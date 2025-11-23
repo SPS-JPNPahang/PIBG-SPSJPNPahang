@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>PIBG @ SPS – Sistem Permohonan</title>
+
+    <!-- Tailwind CDN (mudah untuk styling cepat) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Ikon (Heroicons) -->
+    <script src="https://unpkg.com/feather-icons"></script>
+
+    <style>
+        body {
+            background:#f5f7fa;
+        }
+        .tab-content { display:none; }
+        .active-tab { display:block; }
+    </style>
+</head>
+<body class="text-gray-700">
+
+    <!-- HEADER -->
+    <header class="bg-white shadow-md p-4 mb-4">
+        <div class="max-w-5xl mx-auto flex items-center justify-between">
+            <div class="text-xl font-bold text-blue-700">
+                PIBG @ SPS  
+            </div>
+
+            <nav class="space-x-4 text-sm">
+                <button class="tab-btn font-semibold" data-tab="home">Utama</button>
+                <button class="tab-btn" data-tab="form">Permohonan</button>
+                <button class="tab-btn" data-tab="semak">Semakan</button>
+                <button class="tab-btn" data-tab="pegawai">Pegawai</button>
+                <button class="tab-btn" data-tab="tp">TP</button>
+                <button class="tab-btn" data-tab="muat">Muat Turun</button>
+                <button class="tab-btn" data-tab="info">Info</button>
+            </nav>
+        </div>
+    </header>
+
+    <!-- CONTENT -->
+    <main class="max-w-5xl mx-auto p-4">
+
+        <!-- UTAMA -->
+        <section id="tab-home" class="tab-content active-tab">
+            <h1 class="text-xl font-semibold mb-2">Selamat Datang</h1>
+            <p class="text-sm text-gray-600">
+                Sistem Permohonan PIBG @ SPS membolehkan sekolah menghantar permohonan,
+                semak status, dan pegawai memproses kelulusan secara digital.
+            </p>
+        </section>
+
+        <!-- PERMOHONAN -->
+        <section id="tab-form" class="tab-content">
+            <h2 class="text-lg font-semibold mb-3">Borang Permohonan</h2>
+
+            <div id="form-container"></div>
+        </section>
+
+        <!-- SEMAKAN STATUS -->
+        <section id="tab-semak" class="tab-content">
+            <h2 class="text-lg font-semibold mb-3">Semakan Permohonan</h2>
+
+            <div id="semak-container"></div>
+        </section>
+
+        <!-- PEGAWAI -->
+        <section id="tab-pegawai" class="tab-content">
+            <h2 class="text-lg font-semibold mb-3">Dashboard Pegawai</h2>
+
+            <div id="pegawai-login"></div>
+            <div id="pegawai-dashboard" class="hidden"></div>
+        </section>
+
+        <!-- TP -->
+        <section id="tab-tp" class="tab-content">
+            <h2 class="text-lg font-semibold mb-3">Dashboard Timbalan Pengarah</h2>
+
+            <div id="tp-login"></div>
+            <div id="tp-dashboard" class="hidden"></div>
+        </section>
+
+        <!-- MUAT TURUN -->
+        <section id="tab-muat" class="tab-content">
+            <h2 class="text-lg font-semibold mb-3">Dokumen Muat Turun</h2>
+
+            <p class="text-gray-600 text-sm">Senarai dokumen rasmi PIBG boleh disediakan di sini.</p>
+            <ul class="list-disc ml-5 mt-2">
+                <li>Borang Permohonan PIBG</li>
+                <li>Contoh Surat Rasmi</li>
+                <li>Contoh Minit Mesyuarat</li>
+                <li>Lain-lain dokumen rujukan</li>
+            </ul>
+
+        </section>
+
+        <!-- INFO -->
+        <section id="tab-info" class="tab-content">
+            <h2 class="text-lg font-semibold mb-2">Maklumat Sistem</h2>
+            <p class="text-sm text-gray-600">Versi sistem, info developer, dan log ringkas boleh ditambah di sini.</p>
+        </section>
+
+    </main>
+
+    <!-- JS FILES (ikut susunan ini) -->
+    <script src="js/config.js"></script>
+    <script src="js/util.js"></script>
+    <script src="js/tabs.js"></script>
+
+    <script src="js/auth.js"></script>
+    <script src="js/forms.js"></script>
+    <script src="js/semak.js"></script>
+    <script src="js/pegawai.js"></script>
+    <script src="js/tp.js"></script>
+
+    <script>
+        feather.replace(); // aktifkan ikon
+    </script>
+</body>
+</html>

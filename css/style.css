@@ -1,0 +1,187 @@
+/* ============================================
+   PIBG @ SPS — style.css (FULL FINAL VERSION)
+   Theme: Vibrant Coral / Lemon Chiffon / Ash Grey
+   Includes:
+   - Dark mode (prefers + manual .dark)
+   - Hover animations
+   - Dashboard Pegawai & TP styling
+   - Mobile enhancements
+   - Print mode for Surat Kelulusan
+   ============================================ */
+
+/* ---------- Palette & root ---------- */
+:root{
+  --vibrant-coral: #ed6a5a;
+  --lemon-chiffon: #f4f1bb;
+  --ash-grey: #9bc1bc;
+
+  --bg: var(--lemon-chiffon);
+  --card: #ffffff;
+  --muted: #f3f4f6;
+  --text-dark: #1f2937;
+  --text-muted: #555;
+  --accent: var(--vibrant-coral);
+
+  --shadow-sm: 0 2px 6px rgba(16,24,40,0.06);
+  --shadow-md: 0 6px 18px rgba(16,24,40,0.10);
+  --shadow-lg: 0 12px 30px rgba(16,24,40,0.14);
+
+  --radius: 12px;
+  --pill-radius: 999px;
+  --transition: 220ms cubic-bezier(.2,.9,.2,1);
+}
+
+/* ---------- Basic reset ---------- */
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{
+  font-family: Inter, "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial;
+  background:var(--bg);
+  color:var(--text-dark);
+  -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;
+  line-height:1.5;
+  padding-bottom:3rem;
+}
+
+/* ---------- Utility classes ---------- */
+.container{max-width:1100px;margin:0 auto;padding:1rem}
+.card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow-sm);padding:1rem}
+.flex{display:flex}
+.grid{display:grid}
+.center{display:flex;align-items:center;justify-content:center}
+.hidden{display:none}
+
+/* ---------- Header ---------- */
+header{
+  background:linear-gradient(90deg,var(--accent),#ff8f7f);
+  color:#fff;padding:1rem 0;box-shadow:var(--shadow-md)
+}
+.header-inner{max-width:1100px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;padding:0 1rem}
+.brand{display:flex;align-items:center;gap:.75rem;font-weight:700;font-size:1.125rem}
+.brand .logo{
+  width:44px;height:44px;border-radius:10px;background:linear-gradient(180deg,rgba(255,255,255,0.18),rgba(255,255,255,0.06));
+  display:flex;align-items:center;justify-content:center;box-shadow:inset 0 -8px 18px rgba(255,255,255,0.04);
+}
+.nav{display:flex;gap:.5rem;align-items:center}
+.nav button{background:transparent;border:0;color:rgba(255,255,255,0.95);padding:.5rem .75rem;border-radius:8px;font-weight:600;cursor:pointer;transition:var(--transition)}
+.nav button:hover{background:rgba(255,255,255,0.08);transform:translateY(-2px)}
+
+/* ---------- Tabs container ---------- */
+.tab-content{display:none}
+.active-tab{display:block;animation:fadeInUp .28s ease}
+
+/* ---------- Forms / inputs ---------- */
+input,select,textarea{
+  width:100%;padding:.6rem .75rem;border-radius:10px;border:1px solid rgba(27,31,35,0.06);background:#fff;transition:box-shadow var(--transition),border-color var(--transition)
+}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--accent);box-shadow:0 6px 18px rgba(237,106,90,0.12)}
+input[type="file"]{padding:.75rem;border:2px dashed rgba(27,31,35,0.06);background:linear-gradient(180deg,#fff,#fbfbfb)}
+
+label{display:block;font-size:.9rem;color:var(--text-muted);margin-bottom:.35rem}
+
+/* ---------- Buttons ---------- */
+.btn{display:inline-flex;align-items:center;gap:.5rem;padding:.55rem .9rem;border-radius:10px;border:0;cursor:pointer;transition:transform var(--transition),box-shadow var(--transition)}
+.btn:active{transform:translateY(1px)}
+.btn-primary{background:var(--accent);color:#fff;box-shadow:0 6px 16px rgba(237,106,90,0.14)}
+.btn-primary:hover{transform:translateY(-3px)}
+.btn-ghost{background:transparent;border:1px solid rgba(0,0,0,0.06);color:var(--text-dark)}
+.btn-danger{background:#ef4444;color:#fff}
+
+/* ---------- Cards & small components ---------- */
+.card-quiet{background:linear-gradient(180deg,#fff, #fcfcfb);border-radius:12px;padding:1rem;box-shadow:var(--shadow-sm)}
+.kv{font-size:.85rem;color:var(--text-muted)}
+.kv .v{font-weight:700;color:var(--text-dark);display:block;margin-top:.2rem}
+
+/* ---------- Table styles ---------- */
+.table {width:100%;border-collapse:collapse;border-radius:12px;overflow:hidden;background:var(--card);box-shadow:var(--shadow-sm)}
+.table thead{background:linear-gradient(90deg,var(--ash-grey), #8ec0bb);color:#fff}
+.table th, .table td{padding:.75rem;text-align:left;border-bottom:1px solid rgba(15,23,42,0.04);font-size:.95rem}
+.table tbody tr:hover{background:rgba(10,10,10,0.02)}
+
+/* ---------- Badges ---------- */
+.badge{display:inline-block;padding:.25rem .6rem;border-radius:999px;font-weight:700;font-size:.8rem;color:#fff}
+.badge.baru{background:var(--vibrant-coral)}
+.badge.query{background:#f59e0b}
+.badge.untp{background:#7c3aed}
+.badge.lulus{background:#16a34a}
+.badge.selesai{background:#0f766e}
+
+/* ---------- Hover Animations ---------- */
+.hov-raise{transition:transform var(--transition),box-shadow var(--transition)}
+.hov-raise:hover{transform:translateY(-6px);box-shadow:var(--shadow-lg)}
+.fade-up{opacity:0;transform:translateY(8px);animation:fadeInUp .42s forwards}
+@keyframes fadeInUp{to{opacity:1;transform:none}}
+
+/* ---------- Dashboard & TP ---------- */
+.dashboard-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem}
+.card-dashboard{padding:1rem;border-radius:12px;background:linear-gradient(180deg, #fff, #fbfbfb);box-shadow:var(--shadow-md)}
+.stat{font-size:1.5rem;font-weight:800;color:var(--accent)}
+.stat-sub{font-size:.9rem;color:var(--text-muted)}
+.tp-toolbar{display:flex;gap:.5rem;align-items:center;justify-content:flex-end}
+.checkbox{width:18px;height:18px;border-radius:6px;border:1px solid rgba(0,0,0,0.08)}
+
+/* mobile table collapse */
+@media (max-width:900px){
+  .dashboard-grid{grid-template-columns:1fr;gap:.85rem}
+  .card{padding:.9rem}
+  .brand{font-size:1rem}
+}
+
+/* ---------- Mobile enhancements ---------- */
+.fab{
+  position:fixed;right:18px;bottom:24px;background:var(--accent);color:#fff;border-radius:999px;padding:14px 16px;box-shadow:var(--shadow-lg);z-index:60;display:none
+}
+@media (max-width:640px){ .fab{display:flex;align-items:center;justify-content:center} }
+.btn {min-height:40px}
+
+/* ---------- Print / Surat Kelulusan ---------- */
+@media print {
+  body{background:white;color:#000}
+  header, .nav, .fab, .btn, .badge {display:none !important}
+  .card, .card-dashboard{box-shadow:none;border-radius:0}
+  .print-letter{width:100%;padding:0;box-shadow:none;border:none}
+  .print-letter .letter-body{font-family: "Times New Roman", serif;line-height:1.45;font-size:14pt;color:#222}
+}
+
+/* Printable letter utilities */
+.letter-wrapper{max-width:800px;margin:0 auto;background:#fff;padding:2rem;border-radius:6px;box-shadow:var(--shadow-sm)}
+.letter-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:1.25rem}
+.letter-head .logo{width:72px;height:72px;border-radius:8px;background:linear-gradient(90deg,var(--accent),#ff8f7f)}
+.letter-title{font-size:1.1rem;font-weight:700}
+.letter-body{background:transparent;padding-top:1rem;color:var(--text-dark);font-size:14px}
+
+/* ---------- Dark mode ---------- */
+@media (prefers-color-scheme: dark) {
+  :root{
+    --bg: #071018;
+    --card: #0b1720;
+    --muted: #071826;
+    --text-dark: #e6eef6;
+    --text-muted: #9fb3c1;
+    --shadow-sm: 0 4px 16px rgba(0,0,0,0.6);
+  }
+  header{background:linear-gradient(90deg,#ff7b66,#b85b4f)}
+  input,select,textarea{background:#071826;border:1px solid rgba(255,255,255,0.04);color:var(--text-dark)}
+  .table thead{opacity:.9}
+}
+
+/* Manual dark override */
+body.dark{
+  --bg:#071018;
+  --card:#071826;
+  --muted:#061219;
+  --text-dark:#e6eef6;
+  --text-muted:#9fb3c1;
+}
+body.dark header{background:linear-gradient(90deg,#ff7b66,#b85b4f)}
+body.dark .table thead{opacity:0.95}
+
+/* ---------- Helpers ---------- */
+.mt-2{margin-top:.5rem}
+.mb-2{margin-bottom:.5rem}
+.p-2{padding:.5rem}
+.p-3{padding:.75rem}
+.text-muted{color:var(--text-muted)}
+.center-text{text-align:center}
+.font-mono{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono", monospace}
