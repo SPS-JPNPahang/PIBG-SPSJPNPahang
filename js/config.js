@@ -12,13 +12,13 @@ const CONFIG = {
     // PILIH SALAH SATU PROXY (uncomment 1 line sahaja):
     
     // Option 1: CORS Anywhere
-    WEBAPP_URL: "https://cors-anywhere.herokuapp.com/" + ORIGINAL_URL,
+    //WEBAPP_URL: "https://cors-anywhere.herokuapp.com/" + ORIGINAL_URL,
     
     // Option 2: AllOrigins
     // WEBAPP_URL: "https://api.allorigins.win/raw?url=" + encodeURIComponent(ORIGINAL_URL),
     
     // Option 3: CorsProxy.io
-    // WEBAPP_URL: "https://corsproxy.io/?" + ORIGINAL_URL,
+    WEBAPP_URL: "https://corsproxy.io/?" + ORIGINAL_URL,
     
     TOKEN_KEY: "PIBG_TOKEN",
     ROLE_KEY: "PIBG_ROLE",
@@ -27,3 +27,4 @@ const CONFIG = {
 
 // export ke global
 window.CONFIG = CONFIG;
+
