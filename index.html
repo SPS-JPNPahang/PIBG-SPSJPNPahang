@@ -10,31 +10,21 @@
     <link rel="stylesheet" href="css/style.css">
     <!-- Ikon (Heroicons) -->
     <script src="https://unpkg.com/feather-icons"></script>
-
-    <style>
-        body {
-            background:#f5f7fa;
-        }
-        .tab-content { display:none; }
-        .active-tab { display:block; }
-    </style>
 </head>
-<body class="text-gray-700">
+<body>
 
     <!-- HEADER -->
-    <header class="bg-white shadow-md p-4 mb-4">
-        <div class="max-w-5xl mx-auto flex items-center justify-between">
-            <div class="text-xl font-bold text-blue-700">
-                PIBG @ SPS  
+    <header style="background: linear-gradient(135deg, #ed6a5a 0%, #ff8f7f 100%); box-shadow: 0 4px 6px rgba(0,0,0,0.1); padding: 1rem 0;">
+        <div style="max-width: 1200px; margin: 0 auto; padding: 0 1rem; display: flex; justify-content: space-between; align-items: center;">
+            <div style="color: white; font-size: 1.5rem; font-weight: 700;">
+                PIBG @ SPS
             </div>
-
-            <nav class="space-x-4 text-sm">
-                <button class="tab-btn font-semibold" data-tab="home">Utama</button>
+            <nav style="display: flex; gap: 0.5rem;">
+                <button class="tab-btn active" data-tab="home">Utama</button>
                 <button class="tab-btn" data-tab="form">Permohonan</button>
                 <button class="tab-btn" data-tab="semak">Semakan</button>
                 <button class="tab-btn" data-tab="pegawai">Pegawai</button>
                 <button class="tab-btn" data-tab="tp">TP</button>
-                <button class="tab-btn" data-tab="muat">Muat Turun</button>
                 <button class="tab-btn" data-tab="info">Info</button>
             </nav>
         </div>
@@ -120,4 +110,5 @@
     </script>
 </body>
 </html>
+
 
