@@ -39,8 +39,8 @@ postJSON: async function (body) {
     try {
         const res = await fetch(CONFIG.WEBAPP_URL, {
             method: "POST",
-            headers: { "Content-Type": "text/plain" },  // ← text/plain!
             body: JSON.stringify(body)
+            // ← TIADA headers langsung!
         });
         return await res.json();
     } catch (e) {
@@ -77,5 +77,6 @@ postJSON: async function (body) {
 
 // Expose to global
 window.Util = Util;
+
 
 
