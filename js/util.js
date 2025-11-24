@@ -35,18 +35,51 @@ const Util = {
         });
     },
    // ---------- HTTP POST Helper ----------
-postJSON: async function (body) {
-    try {
-        const res = await fetch(CONFIG.WEBAPP_URL, {
-            method: "POST",
-            body: JSON.stringify(body)
-            // ← TIADA headers langsung!
-        });
-        return await res.json();
-    } catch (e) {
-        return { ok:false, message:"Gagal sambungan ke server." };
-    }
-},
+    postJSON: async function (body) {
+        const url = (CONFIG.API_PROXY_URL && CONFIG.API_PROXY_URL.length) ? CONFIG.API_PROXY_URL : CONFIG.APPS_SCRIPT_URL;
+        const timeout = CONFIG.REQUEST_TIMEOUT || 15000;
+    
+        try {
+            const controller = new AbortController();
+            const id = setTimeout(() => controller.abort(), timeout);
+    
+            const res = await fetch(url, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                    // jika anda mahu tambah API key: "x-api-key": "SOME_KEY"
+                },
+                body: JSON.stringify(body),
+                signal: controller.signal,
+                // credentials: "omit" (default) — kita tidak menggunakan cookies
+            });
+    
+            clearTimeout(id);
+    
+            // Jika worker/proxy atau Apps Script return non-JSON (error page),
+            // tangani dengan try/catch
+            const text = await res.text();
+            try {
+                const json = JSON.parse(text);
+                // jika status bukan ok, kembalikan objek error
+                if (!res.ok && json && json.message) {
+                    return { ok: false, message: json.message, status: res.status, raw: json };
+                }
+                return json;
+            } catch (err) {
+                // bukan JSON
+                return { ok: false, message: "Server returned non-JSON response", status: res.status, rawText: text };
+            }
+    
+        } catch (e) {
+            if (e.name === "AbortError") {
+                return { ok:false, message:"Request timeout (" + timeout + "ms)" };
+            }
+            console.error("postJSON error:", e);
+            return { ok:false, message:"Gagal sambungan ke server." };
+        }
+    },
+
     // ---------- Simpan Token Login ----------
     saveToken: function (token, role) {
         sessionStorage.setItem(CONFIG.TOKEN_KEY, token);
@@ -77,6 +110,7 @@ postJSON: async function (body) {
 
 // Expose to global
 window.Util = Util;
+
 
 
 
