@@ -5,7 +5,7 @@
 
 const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw0Oj9cSnlqbWO0sNFzFAdxeGx_1hMhOjJfCAF6AID672svCkBhPqonnqkw07mpmc_1Ug/exec"; // original
 // --- GANTIKAN nilai ini selepas anda deploy Worker ---
-const API_PROXY_URL = "https://your-worker-subdomain.workers.dev"; // <-- ganti selepas deploy
+const API_PROXY_URL = "https://delicate-wave-e1f8.jpn-pahang-cm25.workers.dev"; // <-- ganti selepas deploy
 
 const CONFIG = {
     SYSTEM_NAME: "PIBG @ SPS",
@@ -21,3 +21,4 @@ const CONFIG = {
 };
 
 window.CONFIG = CONFIG;
+
