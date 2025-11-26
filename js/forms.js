@@ -357,8 +357,6 @@ const FormUI = {
             const bSurat = await Util.fileToBase64(fSurat);
             const bMinit = await Util.fileToBase64(fMinit);
             const bKertas = await Util.fileToBase64(fKertas);
-            
-            console.log('🔍 DEBUG:', {t: typeof bSurat, len: bSurat?.length, pre: bSurat?.substring(0,50)});
 
             const res = await Util.postJSON({
                 type: "new",
