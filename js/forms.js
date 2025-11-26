@@ -11,6 +11,7 @@ const FormUI = {
         this.setupSchoolLookup();
         this.setupDateRestrictions();
         this.loadSystemConfig();
+        this.setTarikhPermohonan();
     },
 
     loadSystemConfig: async function() {
@@ -103,6 +104,11 @@ const FormUI = {
                         Maklumat Permohonan MAT
                     </h3>
                     <div class="grid md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium mb-1">Tarikh Permohonan</label>
+                        <input id="f-tarikhpermohonan" type="text" readonly class="w-full border border-gray-300 rounded-lg px-3 py-2 bg-gray-50 text-gray-700 font-semibold" value="">
+                        <p class="text-xs text-gray-600 mt-1">📅 Tarikh permohonan (automatik)</p>
+                    </div>
                         <div>
                             <label class="block text-sm font-medium mb-1">Tarikh Cadangan MAT <span class="text-red-500">*</span></label>
                             <input id="f-tarikhmat" type="date" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-purple-500">
@@ -203,6 +209,13 @@ const FormUI = {
         }
     },
 
+    setTarikhPermohonan: function() {
+        const today = new Date();
+        const todayStr = today.toLocaleDateString('ms-MY', { day: '2-digit', month: 'short', year: 'numeric' }).toUpperCase();
+        const el = document.getElementById('f-tarikhpermohonan');
+        if (el) el.value = todayStr;
+    },
+    
     setupSchoolLookup: function() {
         const kodInput = document.getElementById('f-kod');
         
@@ -352,3 +365,4 @@ const FormUI = {
 
 // Auto initialize
 document.addEventListener("DOMContentLoaded", () => FormUI.init());
+
