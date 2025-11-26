@@ -408,3 +408,53 @@ tbody tr:hover {
     page-break-inside: avoid;
   }
 }
+/* ---------- Loading Overlay ---------- */
+#loading-overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.8);
+  z-index: 9999;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+}
+
+#loading-overlay.active {
+  display: flex;
+}
+
+.spinner {
+  border: 8px solid var(--gray-200);
+  border-top: 8px solid var(--coral);
+  border-radius: 50%;
+  width: 70px;
+  height: 70px;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.loading-text {
+  color: white;
+  margin-top: 1.5rem;
+  text-align: center;
+}
+
+.loading-text h3 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.loading-text p {
+  font-size: 0.875rem;
+  opacity: 0.9;
+}
+
