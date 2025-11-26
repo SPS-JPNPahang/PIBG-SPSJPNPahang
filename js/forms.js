@@ -106,7 +106,7 @@ const FormUI = {
                     <div class="grid md:grid-cols-2 gap-4">
                         <div>
                             <label class="block text-sm font-medium mb-1">Tarikh Cadangan MAT <span class="text-red-500">*</span></label>
-                            <input id="f-tarikhmat" type="date" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-purple-500">
+                            <input id="f-tarikhmat" type="text" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-purple-500" placeholder="Klik untuk pilih tarikh" readonly>
                             <p class="text-xs text-gray-600 mt-1">
                                 ⚠️ Mesti 30 hari sebelum tarikh MAT<br>
                                 ⚠️ Dalam 90 hari dari tarikh buka sekolah<br>
@@ -239,47 +239,69 @@ const FormUI = {
         });
     },
 
-    setupDateRestrictions: function() {
-        const tarikhMatInput = document.getElementById('f-tarikhmat');
+    setupDateRestrictions: async function() {
+    // Load school start date
+    let schoolStartDate = null;
+    try {
+        const res = await Util.postJSON({
+            type: 'getConfig',
+            payload: { key: 'SCHOOL_START_DATE' }
+        });
         
-        // Set min date: 30 days from today
-        const today = new Date();
-        const minDate = new Date(today);
-        minDate.setDate(minDate.getDate() + 30);
+        if (res.ok && res.value) {
+            schoolStartDate = new Date(res.value + 'T00:00:00');
+        }
+    } catch (err) {
+        console.error('Config load error:', err);
+    }
+    
+    const today = new Date();
+    today.setHours(0,0,0,0);
+    
+    const minDate = new Date(today);
+    minDate.setDate(minDate.getDate() + 30);
+    
+    let maxDate = new Date(today);
+    maxDate.setDate(maxDate.getDate() + 120);
+    
+    if (schoolStartDate && !isNaN(schoolStartDate.getTime())) {
+        const max90 = new Date(schoolStartDate);
+        max90.setDate(max90.getDate() + 90);
+        maxDate = max90;
+    }
+    
+    // Initialize Flatpickr
+    flatpickr("#f-tarikhmat", {
+        minDate: minDate,
+        maxDate: maxDate,
+        dateFormat: "Y-m-d",
         
-        // Set max date: 120 days from today (buffer untuk 90 hari rule)
-        const maxDate = new Date(today);
-        maxDate.setDate(maxDate.getDate() + 120);
-        
-        tarikhMatInput.min = this.formatDateForInput(minDate);
-        tarikhMatInput.max = this.formatDateForInput(maxDate);
-        
-        // Validate on change
-        tarikhMatInput.addEventListener('change', (e) => {
-            const selectedDate = new Date(e.target.value + 'T00:00:00');
-            const dayOfWeek = selectedDate.getDay();
+        disable: [
+        function(date) {
+            const day = date.getDay();
             
-            // Check if weekend
-            if (dayOfWeek >= 1 && dayOfWeek <= 5) {
-                Util.toast('Tarikh MAT mesti pada hari tidak bekerja (Sabtu/Ahad)', 'error');
-                e.target.value = '';
-                return;
+            // Disable weekdays
+            if (day >= 1 && day <= 5) return true;
+            
+            // Disable Sabtu minggu 1,3,5
+            if (day === 6) {
+                const d = date.getDate();
+                const first = new Date(date.getFullYear(), date.getMonth(), 1).getDay();
+                const week = Math.ceil((d + first) / 7);
+                if (![2, 4].includes(week)) return true;
             }
             
-            // Check if Saturday minggu genap
-            if (dayOfWeek === 6) {
-                const date = selectedDate.getDate();
-                const firstDayOfMonth = new Date(selectedDate.getFullYear(), selectedDate.getMonth(), 1).getDay();
-                const weekNumber = Math.ceil((date + firstDayOfMonth) / 7);
-                
-                if (![2, 4].includes(weekNumber)) {
-                    Util.toast('Sabtu mesti minggu ke-2 atau ke-4 sahaja', 'error');
-                    e.target.value = '';
-                    return;
+            return false;
+        }
+    ],
+            
+            onChange: function(selectedDates, dateStr) {
+                if (selectedDates.length > 0) {
+                    const day = selectedDates[0].getDay();
+                    const nama = ['Ahad','Isnin','Selasa','Rabu','Khamis','Jumaat','Sabtu'][day];
+                    Util.toast('✓ ' + nama + ', ' + dateStr, 'success', 2000);
                 }
             }
-            
-            Util.toast('Tarikh MAT sah ✓', 'success', 2000);
         });
     },
 
@@ -391,4 +413,5 @@ const FormUI = {
 
 // Auto initialize
 document.addEventListener("DOMContentLoaded", () => FormUI.init());
+
 
