@@ -320,39 +320,44 @@ const FormUI = {
     },
 
     submitForm: async function () {
-        // Get all values
-        const kod = document.getElementById("f-kod").value.trim();
-        const email = document.getElementById("f-email").value.trim();
-        const namaSekolah = document.getElementById("f-nama-sekolah").value.trim();
-        const kategori = document.getElementById("f-kategori").value.trim();
-        const daerah = document.getElementById("f-daerah").value.trim();
-        const tahun = document.getElementById("f-tahun").value.trim();
-        const rujukan = document.getElementById("f-rujukan").value.trim();
-        const tarikhSurat = document.getElementById("f-tarikhsurat").value;
-        const tarikhMAT = document.getElementById("f-tarikhmat").value;
-        const masaMAT = document.getElementById("f-masamat").value;
-        const tempatMAT = document.getElementById("f-tempatmat").value.trim();
-        const perasmi = document.getElementById("f-perasmi").value.trim();
-        const jawatan = document.getElementById("f-jawatan").value.trim();
-        const penghubung = document.getElementById("f-penghubung").value.trim();
-        const telefon = document.getElementById("f-telefon").value.trim();
+    // Get all values
+    const kod = document.getElementById("f-kod").value.trim();
+    const email = document.getElementById("f-email").value.trim();
+    const namaSekolah = document.getElementById("f-nama-sekolah").value.trim();
+    const kategori = document.getElementById("f-kategori").value.trim();
+    const daerah = document.getElementById("f-daerah").value.trim();
+    const tahun = document.getElementById("f-tahun").value.trim();
+    const rujukan = document.getElementById("f-rujukan").value.trim();
+    const tarikhSurat = document.getElementById("f-tarikhsurat").value;
+    const tarikhMAT = document.getElementById("f-tarikhmat").value;
+    const masaMAT = document.getElementById("f-masamat").value;
+    const tempatMAT = document.getElementById("f-tempatmat").value.trim();
+    const perasmi = document.getElementById("f-perasmi").value.trim();
+    const jawatan = document.getElementById("f-jawatan").value.trim();
+    const penghubung = document.getElementById("f-penghubung").value.trim();
+    const telefon = document.getElementById("f-telefon").value.trim();
 
-        const fSurat = document.getElementById("f-surat").files[0];
-        const fMinit = document.getElementById("f-minit").files[0];
-        const fKertas = document.getElementById("f-kertas").files[0];
+    const fSurat = document.getElementById("f-surat").files[0];
+    const fMinit = document.getElementById("f-minit").files[0];
+    const fKertas = document.getElementById("f-kertas").files[0];
 
-        // Validate
-        if (!kod || !email || !namaSekolah || !tahun || !rujukan || !tarikhSurat || !tarikhMAT || 
-            !masaMAT || !tempatMAT || !perasmi || !jawatan || !penghubung || !telefon) {
-            return Util.toast("Sila lengkapkan semua ruangan bertanda *", "error");
-        }
+    // Validate
+    if (!kod || !email || !namaSekolah || !tahun || !rujukan || !tarikhSurat || !tarikhMAT || 
+        !masaMAT || !tempatMAT || !perasmi || !jawatan || !penghubung || !telefon) {
+        return Util.toast("Sila lengkapkan semua ruangan bertanda *", "error");
+    }
 
-        if (!fSurat || !fMinit || !fKertas) {
-            return Util.toast("Semua 3 dokumen PDF wajib dimuat naik.", "error");
-        }
+    if (!fSurat || !fMinit || !fKertas) {
+        return Util.toast("Semua 3 dokumen PDF wajib dimuat naik.", "error");
+    }
 
-        Util.toast("Memproses permohonan...", "info", 2000);
+    // Show loading SEBELUM start process
+    const loadingEl = document.getElementById('loading-overlay');
+    if (loadingEl) loadingEl.style.display = 'flex';
+    
+    Util.toast("Memproses permohonan...", "info", 2000);
 
+    try {
         // Convert files to base64
         const bSurat = await Util.fileToBase64(fSurat);
         const bMinit = await Util.fileToBase64(fMinit);
@@ -387,12 +392,36 @@ const FormUI = {
 
         const res = await Util.postJSON(body);
 
+        // Hide loading
+        if (loadingEl) loadingEl.style.display = 'none';
+
         if (!res.ok) {
             return Util.toast(res.message || "Gagal hantar permohonan.", "error", 5000);
         }
 
         Util.toast("Permohonan berjaya dihantar!", "success");
 
+        // Clear form
+        document.getElementById("f-kod").value = '';
+        document.getElementById("f-email").value = '';
+        document.getElementById("f-nama-sekolah").value = '';
+        document.getElementById("f-kategori").value = '';
+        document.getElementById("f-daerah").value = '';
+        document.getElementById("f-tahun").value = '';
+        document.getElementById("f-rujukan").value = '';
+        document.getElementById("f-tarikhsurat").value = '';
+        document.getElementById("f-tarikhmat").value = '';
+        document.getElementById("f-masamat").value = '';
+        document.getElementById("f-tempatmat").value = '';
+        document.getElementById("f-perasmi").value = '';
+        document.getElementById("f-jawatan").value = '';
+        document.getElementById("f-penghubung").value = '';
+        document.getElementById("f-telefon").value = '';
+        document.getElementById("f-surat").value = '';
+        document.getElementById("f-minit").value = '';
+        document.getElementById("f-kertas").value = '';
+
+        // Show success message
         document.getElementById("form-result").innerHTML = `
             <div class="p-6 bg-green-50 border-2 border-green-300 rounded-lg">
                 <div class="flex items-center gap-3 mb-3">
@@ -415,11 +444,13 @@ const FormUI = {
                 </div>
             </div>
         `;
+
+        // Scroll to top
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        
+    } catch (error) {
+        // Hide loading on error
+        if (loadingEl) loadingEl.style.display = 'none';
+        Util.toast("Error: " + error.message, "error", 5000);
     }
-};
-
-// Auto initialize
-document.addEventListener("DOMContentLoaded", () => FormUI.init());
-
-
-
+}
