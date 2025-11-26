@@ -186,7 +186,7 @@ main {
   background: linear-gradient(135deg, rgba(244, 241, 187, 0.3) 0%, rgba(155, 193, 188, 0.3) 100%);
 }
 
-main .max-w-5xl {
+main.max-w-5xl {
   max-width: 1200px;
   margin: 2rem auto;
   padding: 2rem;
@@ -632,6 +632,7 @@ tbody tr:hover {
   font-size: 0.875rem;
   opacity: 0.9;
 }
+
 
 
 
