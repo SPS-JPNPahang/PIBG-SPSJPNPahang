@@ -17,8 +17,9 @@ const CONFIG = {
 
     TOKEN_KEY: "PIBG_TOKEN",
     ROLE_KEY: "PIBG_ROLE",
-    REQUEST_TIMEOUT: 15000 // ms
+    REQUEST_TIMEOUT: 30000 // ms
 };
 
 window.CONFIG = CONFIG;
+
 
