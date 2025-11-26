@@ -11,7 +11,6 @@ const FormUI = {
         this.setupSchoolLookup();
         this.setupDateRestrictions();
         this.loadSystemConfig();
-        this.setTarikhPermohonan();
     },
 
     loadSystemConfig: async function() {
@@ -28,13 +27,6 @@ const FormUI = {
         } catch (err) {
             console.error('Failed to load config:', err);
         }
-    },
-
-    setTarikhPermohonan: function() {
-        const today = new Date();
-        const todayStr = today.toLocaleDateString('ms-MY', { day: '2-digit', month: 'short', year: 'numeric' }).toUpperCase();
-        const el = document.getElementById('f-tarikhpermohonan');
-        if (el) el.value = todayStr;
     },
 
     renderForm: function () {
@@ -112,13 +104,8 @@ const FormUI = {
                     </h3>
                     <div class="grid md:grid-cols-2 gap-4">
                         <div>
-                            <label class="block text-sm font-medium mb-1">Tarikh Permohonan</label>
-                            <input id="f-tarikhpermohonan" type="text" readonly class="w-full border border-gray-300 rounded-lg px-3 py-2 bg-gray-50 text-gray-700 font-semibold" value="">
-                            <p class="text-xs text-gray-600 mt-1">📅 Tarikh permohonan (automatik)</p>
-                        </div>
-                        <div>
                             <label class="block text-sm font-medium mb-1">Tarikh Cadangan MAT <span class="text-red-500">*</span></label>
-                            <input id="f-tarikhmat" type="text" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-purple-500" placeholder="Klik untuk pilih tarikh" readonly>
+                            <input id="f-tarikhmat" type="date" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-purple-500">
                             <p class="text-xs text-gray-600 mt-1">
                                 ⚠️ Mesti 30 hari sebelum tarikh MAT<br>
                                 ⚠️ Dalam 90 hari dari tarikh buka sekolah<br>
@@ -129,7 +116,7 @@ const FormUI = {
                             <label class="block text-sm font-medium mb-1">Masa MAT <span class="text-red-500">*</span></label>
                             <input id="f-masamat" type="time" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-purple-500">
                         </div>
-                        <div>
+                        <div class="md:col-span-2">
                             <label class="block text-sm font-medium mb-1">Tempat MAT <span class="text-red-500">*</span></label>
                             <input id="f-tempatmat" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-purple-500" 
                                    placeholder="Contoh: Dewan Sekolah">
@@ -202,7 +189,7 @@ const FormUI = {
 
         document.getElementById("btn-hantar").onclick = () => this.submitForm();
     },
-    
+
     populateYearDropdown: function() {
         const yearSelect = document.getElementById('f-tahun');
         const currentYear = new Date().getFullYear();
@@ -215,7 +202,7 @@ const FormUI = {
             yearSelect.appendChild(option);
         }
     },
-    
+
     setupSchoolLookup: function() {
         const kodInput = document.getElementById('f-kod');
         
@@ -251,259 +238,116 @@ const FormUI = {
         });
     },
 
-    setupDateRestrictions: async function() {
-        // Load school start date
-        let schoolStartDate = null;
-        try {
-            const res = await Util.postJSON({
-                type: 'getConfig',
-                payload: { key: 'SCHOOL_START_DATE' }
-            });
-            
-            if (res.ok && res.value) {
-                schoolStartDate = new Date(res.value + 'T00:00:00');
-            }
-        } catch (err) {
-            console.error('Config load error:', err);
-        }
+    setupDateRestrictions: function() {
+        const tarikhMatInput = document.getElementById('f-tarikhmat');
         
+        // Set min date: 30 days from today
         const today = new Date();
-        today.setHours(0,0,0,0);
-        
         const minDate = new Date(today);
         minDate.setDate(minDate.getDate() + 30);
         
-        let maxDate = new Date(today);
+        // Set max date: 120 days from today (buffer untuk 90 hari rule)
+        const maxDate = new Date(today);
         maxDate.setDate(maxDate.getDate() + 120);
         
-        if (schoolStartDate && !isNaN(schoolStartDate.getTime())) {
-            const max90 = new Date(schoolStartDate);
-            max90.setDate(max90.getDate() + 90);
-            maxDate = max90;
-        }
+        tarikhMatInput.min = this.formatDateForInput(minDate);
+        tarikhMatInput.max = this.formatDateForInput(maxDate);
         
-        // Initialize Flatpickr
-        flatpickr("#f-tarikhmat", {
-            minDate: minDate,
-            maxDate: maxDate,
-            dateFormat: "Y-m-d",
-            altInput: true,
-            altFormat: "d M Y",
-            locale: {
-                months: {
-                    shorthand: ['JAN', 'FEB', 'MAC', 'APR', 'MEI', 'JUN', 'JUL', 'OGO', 'SEP', 'OKT', 'NOV', 'DIS'],
-                    longhand: ['Januari', 'Februari', 'Mac', 'April', 'Mei', 'Jun', 'Julai', 'Ogos', 'September', 'Oktober', 'November', 'Disember']
-                },
-                weekdays: {
-                    shorthand: ['AHD', 'ISN', 'SEL', 'RAB', 'KHA', 'JUM', 'SAB'],
-                    longhand: ['Ahad', 'Isnin', 'Selasa', 'Rabu', 'Khamis', 'Jumaat', 'Sabtu']
-                }
-            },
+        // Validate on change
+        tarikhMatInput.addEventListener('change', (e) => {
+            const selectedDate = new Date(e.target.value + 'T00:00:00');
+            const dayOfWeek = selectedDate.getDay();
             
-            disable: [
-                function(date) {
-                    const day = date.getDay();
-                    if (day >= 1 && day <= 5) return true;
-                    if (day === 6) {
-                        const d = date.getDate();
-                        const first = new Date(date.getFullYear(), date.getMonth(), 1).getDay();
-                        const week = Math.ceil((d + first) / 7);
-                        if (![2, 4].includes(week)) return true;
-                    }
-                    return false;
-                }
-            ],
+            // Check if weekend
+            if (dayOfWeek >= 1 && dayOfWeek <= 5) {
+                Util.toast('Tarikh MAT mesti pada hari tidak bekerja (Sabtu/Ahad)', 'error');
+                e.target.value = '';
+                return;
+            }
             
-            onChange: function(selectedDates, dateStr) {
-                if (selectedDates.length > 0) {
-                    const day = selectedDates[0].getDay();
-                    const nama = ['Ahad','Isnin','Selasa','Rabu','Khamis','Jumaat','Sabtu'][day];
-                    Util.toast('✓ ' + nama + ', ' + dateStr, 'success', 2000);
+            // Check if Saturday minggu genap
+            if (dayOfWeek === 6) {
+                const date = selectedDate.getDate();
+                const firstDayOfMonth = new Date(selectedDate.getFullYear(), selectedDate.getMonth(), 1).getDay();
+                const weekNumber = Math.ceil((date + firstDayOfMonth) / 7);
+                
+                if (![2, 4].includes(weekNumber)) {
+                    Util.toast('Sabtu mesti minggu ke-2 atau ke-4 sahaja', 'error');
+                    e.target.value = '';
+                    return;
                 }
             }
+            
+            Util.toast('Tarikh MAT sah ✓', 'success', 2000);
         });
     },
 
-    submitForm: async function () {
-        // Get all values
-        const kod = document.getElementById("f-kod").value.trim();
-        const email = document.getElementById("f-email").value.trim();
-        const namaSekolah = document.getElementById("f-nama-sekolah").value.trim();
-        const kategori = document.getElementById("f-kategori").value.trim();
-        const daerah = document.getElementById("f-daerah").value.trim();
-        const tahun = document.getElementById("f-tahun").value.trim();
-        const rujukan = document.getElementById("f-rujukan").value.trim();
-        const tarikhSurat = document.getElementById("f-tarikhsurat").value;
-        const tarikhPermohonan = new Date().toISOString().split('T')[0];
-        const tarikhMAT = document.getElementById("f-tarikhmat").value;
-        const masaMAT = document.getElementById("f-masamat").value;
-        const tempatMAT = document.getElementById("f-tempatmat").value.trim();
-        const perasmi = document.getElementById("f-perasmi").value.trim();
-        const jawatan = document.getElementById("f-jawatan").value.trim();
-        const penghubung = document.getElementById("f-penghubung").value.trim();
-        const telefon = document.getElementById("f-telefon").value.trim();
+    formatDateForInput: function(date) {
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+    },
 
-        const fSurat = document.getElementById("f-surat").files[0];
-        const fMinit = document.getElementById("f-minit").files[0];
-        const fKertas = document.getElementById("f-kertas").files[0];
+   submitForm: async function () {
+    const kod = document.getElementById("f-kod").value.trim();
+    const email = document.getElementById("f-email").value.trim();
+    const namaSekolah = document.getElementById("f-nama-sekolah").value.trim();
+    const kategori = document.getElementById("f-kategori").value.trim();
+    const daerah = document.getElementById("f-daerah").value.trim();
+    const tahun = document.getElementById("f-tahun").value.trim();
+    const rujukan = document.getElementById("f-rujukan").value.trim();
+    const tarikhSurat = document.getElementById("f-tarikhsurat").value;
+    const tarikhPermohonan = new Date().toISOString().split('T')[0];
+    const tarikhMAT = document.getElementById("f-tarikhmat").value;
+    const masaMAT = document.getElementById("f-masamat").value;
+    const tempatMAT = document.getElementById("f-tempatmat").value.trim();
+    const perasmi = document.getElementById("f-perasmi").value.trim();
+    const jawatan = document.getElementById("f-jawatan").value.trim();
+    const penghubung = document.getElementById("f-penghubung").value.trim();
+    const telefon = document.getElementById("f-telefon").value.trim();
+    const fSurat = document.getElementById("f-surat").files[0];
+    const fMinit = document.getElementById("f-minit").files[0];
+    const fKertas = document.getElementById("f-kertas").files[0];
 
-        // Validate
-        if (!kod || !email || !namaSekolah || !tahun || !rujukan || !tarikhSurat || !tarikhMAT || 
-            !masaMAT || !tempatMAT || !perasmi || !jawatan || !penghubung || !telefon) {
-            return Util.toast("Sila lengkapkan semua ruangan bertanda *", "error");
-        }
-
-        if (!fSurat || !fMinit || !fKertas) {
-            return Util.toast("Semua 3 dokumen PDF wajib dimuat naik.", "error");
-        }
-
-        // Show loading SEBELUM start process
-        const loadingEl = document.getElementById('loading-overlay');
-        if (loadingEl) loadingEl.style.display = 'flex';
-        
-        Util.toast("Memproses permohonan...", "info", 2000);
-
-        try {
-            // Convert files to base64
-            const bSurat = await Util.fileToBase64(fSurat);
-            const bMinit = await Util.fileToBase64(fMinit);
-            const bKertas = await Util.fileToBase64(fKertas);
-
-            // Build payload
-            const body = {
-                type: "new",
-                payload: {
-                    schoolCode: kod,
-                    schoolName: namaSekolah,
-                    kategori: kategori,
-                    daerah: daerah,
-                    tahun: tahun,
-                    schoolEmail: email,
-                    rujukanSurat: rujukan,
-                    tarikhRujukanSurat: tarikhSurat,
-                    tarikhPermohonan: tarikhPermohonan,
-                    tarikhMAT: tarikhMAT,
-                    masaMAT: masaMAT,
-                    tempatMAT: tempatMAT,
-                    namaPerasmi: perasmi,
-                    jawatanPerasmi: jawatan,
-                    namaPenghubung: penghubung,
-                    noTelefon: telefon
-                },
-                filesBase64: {
-                    suratRasmi: bSurat,
-                    minitMesyuarat: bMinit,
-                    kertasCadangan: bKertas
-                }
-            };
-
-            const res = await Util.postJSON(body);
-
-            // Hide loading
-            if (loadingEl) loadingEl.style.display = 'none';
-
-            if (!res.ok) {
-                return Util.toast(res.message || "Gagal hantar permohonan.", "error", 5000);
-            }
-
-            Util.toast("✓ Permohonan berjaya dihantar!", "success", 3000);
-
-            // Show enhanced success message
-            document.getElementById("form-result").innerHTML = `
-                <div class="p-6 bg-green-50 border-2 border-green-400 rounded-lg shadow-lg mb-6">
-                    <div class="flex items-center gap-3 mb-4">
-                        <div style="width: 60px; height: 60px; background: linear-gradient(135deg, #10b981, #34d399); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
-                            <i class="fas fa-check text-white text-3xl"></i>
-                        </div>
-                        <div>
-                            <h4 class="font-bold text-xl text-green-800">Permohonan Berjaya Dihantar!</h4>
-                            <p class="text-sm text-green-700">Permohonan anda telah diterima untuk semakan</p>
-                        </div>
-                    </div>
-                    
-                    <div class="bg-white p-5 rounded-lg border-2 border-green-200 mb-4">
-                        <div class="grid gap-3">
-                            <div class="flex justify-between items-center py-2 border-b">
-                                <span class="font-semibold text-gray-700">ID Permohonan:</span>
-                                <span class="font-mono font-bold text-2xl text-blue-600">${res.reqId}</span>
-                            </div>
-                            <div class="flex justify-between items-center py-2 border-b">
-                                <span class="font-semibold text-gray-700">Kod Sekolah:</span>
-                                <span class="font-mono font-bold text-lg text-gray-800">${kod}</span>
-                            </div>
-                            <div class="flex justify-between items-center py-2">
-                                <span class="font-semibold text-gray-700">Status:</span>
-                                <span class="px-4 py-1 bg-blue-100 text-blue-800 rounded-full font-semibold text-sm">BARU - Menunggu Semakan</span>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="bg-blue-50 p-4 rounded-lg border-l-4 border-blue-500 mb-4">
-                        <h5 class="font-bold text-blue-900 mb-2 flex items-center gap-2">
-                            <i class="fas fa-info-circle"></i>
-                            Langkah Seterusnya
-                        </h5>
-                        <ul class="text-sm text-blue-800 space-y-2 ml-6">
-                            <li class="flex items-start gap-2">
-                                <span class="font-bold">1.</span>
-                                <span>Simpan <strong>ID Permohonan</strong> dan <strong>Kod Sekolah</strong> untuk rujukan</span>
-                            </li>
-                            <li class="flex items-start gap-2">
-                                <span class="font-bold">2.</span>
-                                <span>Emel pengesahan akan dihantar ke <strong>${email}</strong></span>
-                            </li>
-                            <li class="flex items-start gap-2">
-                                <span class="font-bold">3.</span>
-                                <span>Anda boleh semak status permohonan menggunakan tab <strong>"Semakan"</strong></span>
-                            </li>
-                            <li class="flex items-start gap-2">
-                                <span class="font-bold">4.</span>
-                                <span>Permohonan akan disemak dalam tempoh <strong>3-5 hari bekerja</strong></span>
-                            </li>
-                        </ul>
-                    </div>
-                    
-                    <div class="flex gap-3 justify-center">
-                        <button onclick="window.location.reload()" class="px-6 py-3 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700 transition flex items-center gap-2">
-                            <i class="fas fa-plus-circle"></i>
-                            Permohonan Baru
-                        </button>
-                        <button onclick="document.querySelector('[data-tab=semak]').click()" class="px-6 py-3 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition flex items-center gap-2">
-                            <i class="fas fa-search"></i>
-                            Semak Status
-                        </button>
-                    </div>
-                </div>
-            `;
-
-            // Clear form (keep kod and email for easy next submission)
-            document.getElementById("f-nama-sekolah").value = '';
-            document.getElementById("f-kategori").value = '';
-            document.getElementById("f-daerah").value = '';
-            document.getElementById("f-tahun").value = '';
-            document.getElementById("f-rujukan").value = '';
-            document.getElementById("f-tarikhsurat").value = '';
-            document.getElementById("f-tarikhmat").value = '';
-            document.getElementById("f-masamat").value = '';
-            document.getElementById("f-tempatmat").value = '';
-            document.getElementById("f-perasmi").value = '';
-            document.getElementById("f-jawatan").value = '';
-            document.getElementById("f-penghubung").value = '';
-            document.getElementById("f-telefon").value = '';
-            document.getElementById("f-surat").value = '';
-            document.getElementById("f-minit").value = '';
-            document.getElementById("f-kertas").value = '';
-
-            // Scroll to top
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-            
-        } catch (error) {
-            // Hide loading on error
-            if (loadingEl) loadingEl.style.display = 'none';
-            Util.toast("Error: " + error.message, "error", 5000);
-        }
+    if (!kod || !email || !namaSekolah || !tahun || !rujukan || !tarikhSurat || !tarikhMAT || !masaMAT || !tempatMAT || !perasmi || !jawatan || !penghubung || !telefon) {
+        return Util.toast("Sila lengkapkan semua ruangan bertanda *", "error");
+    }
+    if (!fSurat || !fMinit || !fKertas) {
+        return Util.toast("Semua 3 dokumen PDF wajib dimuat naik.", "error");
     }
 
+    const loadingEl = document.getElementById('loading-overlay');
+    if (loadingEl) loadingEl.style.display = 'flex';
+    Util.toast("Memproses permohonan...", "info", 2000);
+
+    try {
+        const bSurat = await Util.fileToBase64(fSurat);
+        const bMinit = await Util.fileToBase64(fMinit);
+        const bKertas = await Util.fileToBase64(fKertas);
+        
+        console.log('🔍 DEBUG:', {t: typeof bSurat, len: bSurat?.length, pre: bSurat?.substring(0,50)});
+
+        const res = await Util.postJSON({
+            type: "new",
+            payload: {schoolCode:kod, schoolName:namaSekolah, kategori, daerah, tahun, schoolEmail:email, rujukanSurat:rujukan, tarikhRujukanSurat:tarikhSurat, tarikhPermohonan, tarikhMAT, masaMAT, tempatMAT, namaPerasmi:perasmi, jawatanPerasmi:jawatan, namaPenghubung:penghubung, noTelefon:telefon},
+            filesBase64: {suratRasmi:bSurat, minitMesyuarat:bMinit, kertasCadangan:bKertas}
+        });
+
+        if (loadingEl) loadingEl.style.display = 'none';
+        if (!res.ok) return Util.toast(res.message || "Gagal", "error", 5000);
+
+        document.getElementById("form-result").innerHTML = `<div class="p-6 bg-green-50 border-2 border-green-400 rounded-lg"><h4 class="font-bold text-xl text-green-800">✅ Berjaya! ID: ${res.reqId}</h4></div>`;
+        document.getElementById("f-nama-sekolah").value = '';
+        document.getElementById("f-surat").value = '';
+        document.getElementById("f-minit").value = '';
+        document.getElementById("f-kertas").value = '';
+        window.scrollTo({top:0, behavior:'smooth'});
+    } catch (error) {
+        if (loadingEl) loadingEl.style.display = 'none';
+        Util.toast("Error: " + error.message, "error", 5000);
+    }
+}
 };
 
 // Auto initialize
