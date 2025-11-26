@@ -68,7 +68,6 @@ const FormUI = {
                             <input id="f-daerah" readonly class="w-full border border-gray-300 rounded-lg px-3 py-2 bg-gray-50 text-gray-700" 
                                    placeholder="(Auto-fill)">
                         </div>
-                        <!-- TAMBAH INI -->
                         <div>
                             <label class="block text-sm font-medium mb-1">Tahun <span class="text-red-500">*</span></label>
                             <select id="f-tahun" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500" required>
@@ -240,68 +239,68 @@ const FormUI = {
     },
 
     setupDateRestrictions: async function() {
-    // Load school start date
-    let schoolStartDate = null;
-    try {
-        const res = await Util.postJSON({
-            type: 'getConfig',
-            payload: { key: 'SCHOOL_START_DATE' }
-        });
-        
-        if (res.ok && res.value) {
-            schoolStartDate = new Date(res.value + 'T00:00:00');
-        }
-    } catch (err) {
-        console.error('Config load error:', err);
-    }
-    
-    const today = new Date();
-    today.setHours(0,0,0,0);
-    
-    const minDate = new Date(today);
-    minDate.setDate(minDate.getDate() + 30);
-    
-    let maxDate = new Date(today);
-    maxDate.setDate(maxDate.getDate() + 120);
-    
-    if (schoolStartDate && !isNaN(schoolStartDate.getTime())) {
-        const max90 = new Date(schoolStartDate);
-        max90.setDate(max90.getDate() + 90);
-        maxDate = max90;
-    }
-    
-    // Initialize Flatpickr
-   flatpickr("#f-tarikhmat", {
-    minDate: minDate,
-    maxDate: maxDate,
-    dateFormat: "Y-m-d",
-    altInput: true,
-    altFormat: "d M Y",
-    locale: {
-        months: {
-            shorthand: ['JAN', 'FEB', 'MAC', 'APR', 'MEI', 'JUN', 'JUL', 'OGO', 'SEP', 'OKT', 'NOV', 'DIS'],
-            longhand: ['Januari', 'Februari', 'Mac', 'April', 'Mei', 'Jun', 'Julai', 'Ogos', 'September', 'Oktober', 'November', 'Disember']
-        },
-        weekdays: {
-            shorthand: ['AHD', 'ISN', 'SEL', 'RAB', 'KHA', 'JUM', 'SAB'],
-            longhand: ['Ahad', 'Isnin', 'Selasa', 'Rabu', 'Khamis', 'Jumaat', 'Sabtu']
-        }
-    },
-    
-    disable: [
-        function(date) {
-            const day = date.getDay();
-            if (day >= 1 && day <= 5) return true;
-            if (day === 6) {
-                const d = date.getDate();
-                const first = new Date(date.getFullYear(), date.getMonth(), 1).getDay();
-                const week = Math.ceil((d + first) / 7);
-                if (![2, 4].includes(week)) return true;
+        // Load school start date
+        let schoolStartDate = null;
+        try {
+            const res = await Util.postJSON({
+                type: 'getConfig',
+                payload: { key: 'SCHOOL_START_DATE' }
+            });
+            
+            if (res.ok && res.value) {
+                schoolStartDate = new Date(res.value + 'T00:00:00');
             }
-            return false;
+        } catch (err) {
+            console.error('Config load error:', err);
         }
-    ],
-    
+        
+        const today = new Date();
+        today.setHours(0,0,0,0);
+        
+        const minDate = new Date(today);
+        minDate.setDate(minDate.getDate() + 30);
+        
+        let maxDate = new Date(today);
+        maxDate.setDate(maxDate.getDate() + 120);
+        
+        if (schoolStartDate && !isNaN(schoolStartDate.getTime())) {
+            const max90 = new Date(schoolStartDate);
+            max90.setDate(max90.getDate() + 90);
+            maxDate = max90;
+        }
+        
+        // Initialize Flatpickr
+        flatpickr("#f-tarikhmat", {
+            minDate: minDate,
+            maxDate: maxDate,
+            dateFormat: "Y-m-d",
+            altInput: true,
+            altFormat: "d M Y",
+            locale: {
+                months: {
+                    shorthand: ['JAN', 'FEB', 'MAC', 'APR', 'MEI', 'JUN', 'JUL', 'OGO', 'SEP', 'OKT', 'NOV', 'DIS'],
+                    longhand: ['Januari', 'Februari', 'Mac', 'April', 'Mei', 'Jun', 'Julai', 'Ogos', 'September', 'Oktober', 'November', 'Disember']
+                },
+                weekdays: {
+                    shorthand: ['AHD', 'ISN', 'SEL', 'RAB', 'KHA', 'JUM', 'SAB'],
+                    longhand: ['Ahad', 'Isnin', 'Selasa', 'Rabu', 'Khamis', 'Jumaat', 'Sabtu']
+                }
+            },
+            
+            disable: [
+                function(date) {
+                    const day = date.getDay();
+                    if (day >= 1 && day <= 5) return true;
+                    if (day === 6) {
+                        const d = date.getDate();
+                        const first = new Date(date.getFullYear(), date.getMonth(), 1).getDay();
+                        const week = Math.ceil((d + first) / 7);
+                        if (![2, 4].includes(week)) return true;
+                    }
+                    return false;
+                }
+            ],
+            
             onChange: function(selectedDates, dateStr) {
                 if (selectedDates.length > 0) {
                     const day = selectedDates[0].getDay();
@@ -312,145 +311,143 @@ const FormUI = {
         });
     },
 
-    formatDateForInput: function(date) {
-        const year = date.getFullYear();
-        const month = String(date.getMonth() + 1).padStart(2, '0');
-        const day = String(date.getDate()).padStart(2, '0');
-        return `${year}-${month}-${day}`;
-    },
-
     submitForm: async function () {
-    // Get all values
-    const kod = document.getElementById("f-kod").value.trim();
-    const email = document.getElementById("f-email").value.trim();
-    const namaSekolah = document.getElementById("f-nama-sekolah").value.trim();
-    const kategori = document.getElementById("f-kategori").value.trim();
-    const daerah = document.getElementById("f-daerah").value.trim();
-    const tahun = document.getElementById("f-tahun").value.trim();
-    const rujukan = document.getElementById("f-rujukan").value.trim();
-    const tarikhSurat = document.getElementById("f-tarikhsurat").value;
-    const tarikhMAT = document.getElementById("f-tarikhmat").value;
-    const masaMAT = document.getElementById("f-masamat").value;
-    const tempatMAT = document.getElementById("f-tempatmat").value.trim();
-    const perasmi = document.getElementById("f-perasmi").value.trim();
-    const jawatan = document.getElementById("f-jawatan").value.trim();
-    const penghubung = document.getElementById("f-penghubung").value.trim();
-    const telefon = document.getElementById("f-telefon").value.trim();
+        // Get all values
+        const kod = document.getElementById("f-kod").value.trim();
+        const email = document.getElementById("f-email").value.trim();
+        const namaSekolah = document.getElementById("f-nama-sekolah").value.trim();
+        const kategori = document.getElementById("f-kategori").value.trim();
+        const daerah = document.getElementById("f-daerah").value.trim();
+        const tahun = document.getElementById("f-tahun").value.trim();
+        const rujukan = document.getElementById("f-rujukan").value.trim();
+        const tarikhSurat = document.getElementById("f-tarikhsurat").value;
+        const tarikhMAT = document.getElementById("f-tarikhmat").value;
+        const masaMAT = document.getElementById("f-masamat").value;
+        const tempatMAT = document.getElementById("f-tempatmat").value.trim();
+        const perasmi = document.getElementById("f-perasmi").value.trim();
+        const jawatan = document.getElementById("f-jawatan").value.trim();
+        const penghubung = document.getElementById("f-penghubung").value.trim();
+        const telefon = document.getElementById("f-telefon").value.trim();
 
-    const fSurat = document.getElementById("f-surat").files[0];
-    const fMinit = document.getElementById("f-minit").files[0];
-    const fKertas = document.getElementById("f-kertas").files[0];
+        const fSurat = document.getElementById("f-surat").files[0];
+        const fMinit = document.getElementById("f-minit").files[0];
+        const fKertas = document.getElementById("f-kertas").files[0];
 
-    // Validate
-    if (!kod || !email || !namaSekolah || !tahun || !rujukan || !tarikhSurat || !tarikhMAT || 
-        !masaMAT || !tempatMAT || !perasmi || !jawatan || !penghubung || !telefon) {
-        return Util.toast("Sila lengkapkan semua ruangan bertanda *", "error");
-    }
-
-    if (!fSurat || !fMinit || !fKertas) {
-        return Util.toast("Semua 3 dokumen PDF wajib dimuat naik.", "error");
-    }
-
-    // Show loading SEBELUM start process
-    const loadingEl = document.getElementById('loading-overlay');
-    if (loadingEl) loadingEl.style.display = 'flex';
-    
-    Util.toast("Memproses permohonan...", "info", 2000);
-
-    try {
-        // Convert files to base64
-        const bSurat = await Util.fileToBase64(fSurat);
-        const bMinit = await Util.fileToBase64(fMinit);
-        const bKertas = await Util.fileToBase64(fKertas);
-
-        // Build payload
-        const body = {
-            type: "new",
-            payload: {
-                schoolCode: kod,
-                schoolName: namaSekolah,
-                kategori: kategori,
-                daerah: daerah,
-                tahun: tahun,
-                schoolEmail: email,
-                rujukanSurat: rujukan,
-                tarikhRujukanSurat: tarikhSurat,
-                tarikhMAT: tarikhMAT,
-                masaMAT: masaMAT,
-                tempatMAT: tempatMAT,
-                namaPerasmi: perasmi,
-                jawatanPerasmi: jawatan,
-                namaPenghubung: penghubung,
-                noTelefon: telefon
-            },
-            filesBase64: {
-                suratRasmi: bSurat,
-                minitMesyuarat: bMinit,
-                kertasCadangan: bKertas
-            }
-        };
-
-        const res = await Util.postJSON(body);
-
-        // Hide loading
-        if (loadingEl) loadingEl.style.display = 'none';
-
-        if (!res.ok) {
-            return Util.toast(res.message || "Gagal hantar permohonan.", "error", 5000);
+        // Validate
+        if (!kod || !email || !namaSekolah || !tahun || !rujukan || !tarikhSurat || !tarikhMAT || 
+            !masaMAT || !tempatMAT || !perasmi || !jawatan || !penghubung || !telefon) {
+            return Util.toast("Sila lengkapkan semua ruangan bertanda *", "error");
         }
 
-        Util.toast("Permohonan berjaya dihantar!", "success");
+        if (!fSurat || !fMinit || !fKertas) {
+            return Util.toast("Semua 3 dokumen PDF wajib dimuat naik.", "error");
+        }
 
-        // Clear form
-        document.getElementById("f-kod").value = '';
-        document.getElementById("f-email").value = '';
-        document.getElementById("f-nama-sekolah").value = '';
-        document.getElementById("f-kategori").value = '';
-        document.getElementById("f-daerah").value = '';
-        document.getElementById("f-tahun").value = '';
-        document.getElementById("f-rujukan").value = '';
-        document.getElementById("f-tarikhsurat").value = '';
-        document.getElementById("f-tarikhmat").value = '';
-        document.getElementById("f-masamat").value = '';
-        document.getElementById("f-tempatmat").value = '';
-        document.getElementById("f-perasmi").value = '';
-        document.getElementById("f-jawatan").value = '';
-        document.getElementById("f-penghubung").value = '';
-        document.getElementById("f-telefon").value = '';
-        document.getElementById("f-surat").value = '';
-        document.getElementById("f-minit").value = '';
-        document.getElementById("f-kertas").value = '';
-
-        // Show success message
-        document.getElementById("form-result").innerHTML = `
-            <div class="p-6 bg-green-50 border-2 border-green-300 rounded-lg">
-                <div class="flex items-center gap-3 mb-3">
-                    <i class="fas fa-check-circle text-green-600 text-3xl"></i>
-                    <div>
-                        <h4 class="font-semibold text-lg text-green-800">Permohonan Diterima</h4>
-                        <p class="text-sm text-green-700">Permohonan anda telah berjaya dihantar untuk semakan.</p>
-                    </div>
-                </div>
-                <div class="bg-white p-4 rounded-lg">
-                    <div class="text-sm">
-                        <div class="flex justify-between py-2 border-b">
-                            <span class="font-medium">ID Permohonan:</span>
-                            <span class="font-mono font-bold text-blue-600">${res.reqId}</span>
-                        </div>
-                        <div class="py-2">
-                            <p class="text-gray-600">Sila simpan ID Permohonan ini untuk semakan status.</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        `;
-
-        // Scroll to top
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+        // Show loading SEBELUM start process
+        const loadingEl = document.getElementById('loading-overlay');
+        if (loadingEl) loadingEl.style.display = 'flex';
         
-    } catch (error) {
-        // Hide loading on error
-        if (loadingEl) loadingEl.style.display = 'none';
-        Util.toast("Error: " + error.message, "error", 5000);
+        Util.toast("Memproses permohonan...", "info", 2000);
+
+        try {
+            // Convert files to base64
+            const bSurat = await Util.fileToBase64(fSurat);
+            const bMinit = await Util.fileToBase64(fMinit);
+            const bKertas = await Util.fileToBase64(fKertas);
+
+            // Build payload
+            const body = {
+                type: "new",
+                payload: {
+                    schoolCode: kod,
+                    schoolName: namaSekolah,
+                    kategori: kategori,
+                    daerah: daerah,
+                    tahun: tahun,
+                    schoolEmail: email,
+                    rujukanSurat: rujukan,
+                    tarikhRujukanSurat: tarikhSurat,
+                    tarikhMAT: tarikhMAT,
+                    masaMAT: masaMAT,
+                    tempatMAT: tempatMAT,
+                    namaPerasmi: perasmi,
+                    jawatanPerasmi: jawatan,
+                    namaPenghubung: penghubung,
+                    noTelefon: telefon
+                },
+                filesBase64: {
+                    suratRasmi: bSurat,
+                    minitMesyuarat: bMinit,
+                    kertasCadangan: bKertas
+                }
+            };
+
+            const res = await Util.postJSON(body);
+
+            // Hide loading
+            if (loadingEl) loadingEl.style.display = 'none';
+
+            if (!res.ok) {
+                return Util.toast(res.message || "Gagal hantar permohonan.", "error", 5000);
+            }
+
+            Util.toast("Permohonan berjaya dihantar!", "success");
+
+            // Clear form
+            document.getElementById("f-kod").value = '';
+            document.getElementById("f-email").value = '';
+            document.getElementById("f-nama-sekolah").value = '';
+            document.getElementById("f-kategori").value = '';
+            document.getElementById("f-daerah").value = '';
+            document.getElementById("f-tahun").value = '';
+            document.getElementById("f-rujukan").value = '';
+            document.getElementById("f-tarikhsurat").value = '';
+            document.getElementById("f-tarikhmat").value = '';
+            document.getElementById("f-masamat").value = '';
+            document.getElementById("f-tempatmat").value = '';
+            document.getElementById("f-perasmi").value = '';
+            document.getElementById("f-jawatan").value = '';
+            document.getElementById("f-penghubung").value = '';
+            document.getElementById("f-telefon").value = '';
+            document.getElementById("f-surat").value = '';
+            document.getElementById("f-minit").value = '';
+            document.getElementById("f-kertas").value = '';
+
+            // Show success message
+            document.getElementById("form-result").innerHTML = `
+                <div class="p-6 bg-green-50 border-2 border-green-300 rounded-lg">
+                    <div class="flex items-center gap-3 mb-3">
+                        <i class="fas fa-check-circle text-green-600 text-3xl"></i>
+                        <div>
+                            <h4 class="font-semibold text-lg text-green-800">Permohonan Diterima</h4>
+                            <p class="text-sm text-green-700">Permohonan anda telah berjaya dihantar untuk semakan.</p>
+                        </div>
+                    </div>
+                    <div class="bg-white p-4 rounded-lg">
+                        <div class="text-sm">
+                            <div class="flex justify-between py-2 border-b">
+                                <span class="font-medium">ID Permohonan:</span>
+                                <span class="font-mono font-bold text-blue-600">${res.reqId}</span>
+                            </div>
+                            <div class="py-2">
+                                <p class="text-gray-600">Sila simpan ID Permohonan ini untuk semakan status.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            // Scroll to top
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            
+        } catch (error) {
+            // Hide loading on error
+            if (loadingEl) loadingEl.style.display = 'none';
+            Util.toast("Error: " + error.message, "error", 5000);
+        }
     }
-}
+
+};
+
+// Auto initialize
+document.addEventListener("DOMContentLoaded", () => FormUI.init());
