@@ -78,41 +78,125 @@
 
         <!-- UTAMA -->
         <section id="tab-home" class="tab-content active-tab">
-            <h1 class="text-xl font-semibold mb-2">Selamat Datang</h1>
-            <p class="text-sm text-gray-600">
-                Sistem Permohonan PIBG @ SPS membolehkan sekolah menghantar permohonan,
-                semak status, dan pegawai memproses kelulusan secara digital.
-            </p>
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-icon coral">
+                        <i class="fas fa-house-flag"></i>
+                    </div>
+                    <div>
+                        <h2>Selamat Datang</h2>
+                        <p style="margin: 0; color: var(--color-text-secondary); font-size: 16px;">Permohonan Perasmi Mesyuarat Agung Tahunan (MAT) PIBG</p>
+                    </div>
+                </div>
+                <p style="font-size: var(--font-size-lg); line-height: 1.8; color: var(--color-text-primary);">
+                    Sistem Permohonan <strong>PIBG @ SPS</strong> membolehkan sekolah menghantar permohonan,
+                    semak status, dan pegawai memproses kelulusan secara digital dengan cekap dan teratur.
+                </p>
+                
+                <div class="grid grid-cols-3" style="margin-top: var(--spacing-lg);">
+                    <div class="card" style="text-align: center; padding: var(--spacing-md);">
+                        <div class="card-icon coral" style="margin: 0 auto var(--spacing-sm) auto;">
+                            <i class="fas fa-paper-plane"></i>
+                        </div>
+                        <h4 style="margin-bottom: var(--spacing-xs);">Hantar Permohonan</h4>
+                        <p style="font-size: 14px; color: var(--color-text-secondary);">Isi borang online dengan mudah</p>
+                    </div>
+                    
+                    <div class="card" style="text-align: center; padding: var(--spacing-md);">
+                        <div class="card-icon blue" style="margin: 0 auto var(--spacing-sm) auto;">
+                            <i class="fas fa-search"></i>
+                        </div>
+                        <h4 style="margin-bottom: var(--spacing-xs);">Semak Status</h4>
+                        <p style="font-size: 14px; color: var(--color-text-secondary);">Track permohonan real-time</p>
+                    </div>
+                    
+                    <div class="card" style="text-align: center; padding: var(--spacing-md);">
+                        <div class="card-icon purple" style="margin: 0 auto var(--spacing-sm) auto;">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                        <h4 style="margin-bottom: var(--spacing-xs);">Kelulusan Pantas</h4>
+                        <p style="font-size: 14px; color: var(--color-text-secondary);">Proses approval digital</p>
+                    </div>
+                </div>
+            </div>
         </section>
 
         <!-- PERMOHONAN -->
         <section id="tab-form" class="tab-content">
-            <h2 class="text-lg font-semibold mb-3">Borang Permohonan</h2>
-
-            <div id="form-container"></div>
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-icon coral">
+                        <i class="fas fa-file-circle-plus"></i>
+                    </div>
+                    <div>
+                        <h2>Borang Permohonan Perasmi</h2>
+                        <p style="margin: 0; color: var(--color-text-secondary); font-size: 16px;">Mesyuarat Agung Tahunan (MAT) PIBG</p>
+                    </div>
+                </div>
+                
+                <div class="alert alert-info" style="margin-bottom: var(--spacing-lg);">
+                    <i class="fas fa-info-circle"></i>
+                    <div>
+                        <strong>Arahan:</strong> Sila isi semua maklumat dengan lengkap dan tepat. 
+                        Pastikan dokumen yang dimuat naik adalah dalam format PDF dan saiz tidak melebihi 5MB.
+                    </div>
+                </div>
+        
+                <div id="form-container"></div>
+            </div>
         </section>
 
         <!-- SEMAKAN STATUS -->
         <section id="tab-semak" class="tab-content">
-            <h2 class="text-lg font-semibold mb-3">Semakan Permohonan</h2>
-
-            <div id="semak-container"></div>
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-icon blue">
+                        <i class="fas fa-magnifying-glass-chart"></i>
+                    </div>
+                    <div>
+                        <h2>Semakan Status Permohonan</h2>
+                        <p style="margin: 0; color: var(--color-text-secondary); font-size: 16px;">Cari dan jejak status permohonan anda</p>
+                    </div>
+                </div>
+        
+                <div id="semak-container"></div>
+            </div>
         </section>
 
         <!-- PEGAWAI -->
         <section id="tab-pegawai" class="tab-content">
-            <h2 class="text-lg font-semibold mb-3">Dashboard Pegawai</h2>
-
-            <div id="pegawai-login"></div>
-            <div id="pegawai-dashboard" class="hidden"></div>
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-icon purple">
+                        <i class="fas fa-user-tie"></i>
+                    </div>
+                    <div>
+                        <h2>Dashboard Pegawai Penyemak</h2>
+                        <p style="margin: 0; color: var(--color-text-secondary); font-size: 16px;">Panel pengurusan dan kelulusan permohonan</p>
+                    </div>
+                </div>
+        
+                <div id="pegawai-login"></div>
+                <div id="pegawai-dashboard" class="hidden"></div>
+            </div>
         </section>
 
         <!-- TP -->
         <section id="tab-tp" class="tab-content">
-            <h2 class="text-lg font-semibold mb-3">Dashboard Timbalan Pengarah</h2>
-
-            <div id="tp-login"></div>
-            <div id="tp-dashboard" class="hidden"></div>
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-icon blue">
+                        <i class="fas fa-user-shield"></i>
+                    </div>
+                    <div>
+                        <h2>Dashboard Timbalan Pengarah</h2>
+                        <p style="margin: 0; color: var(--color-text-secondary); font-size: 16px;">Terhad untuk akses Timbalan Pengarah SPS JPN Pahang Sahaja</p>
+                    </div>
+                </div>
+        
+                <div id="tp-login"></div>
+                <div id="tp-dashboard" class="hidden"></div>
+            </div>
         </section>
 
         <!-- MUAT TURUN -->
@@ -131,8 +215,40 @@
 
         <!-- INFO -->
         <section id="tab-info" class="tab-content">
-            <h2 class="text-lg font-semibold mb-2">Maklumat Sistem</h2>
-            <p class="text-sm text-gray-600">Versi sistem, info developer, dan log ringkas boleh ditambah di sini.</p>
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-icon coral">
+                        <i class="fas fa-circle-info"></i>
+                    </div>
+                    <div>
+                        <h2>Maklumat Sistem</h2>
+                        <p style="margin: 0; color: var(--color-text-secondary); font-size: 16px;">Versi, panduan dan sokongan teknikal</p>
+                    </div>
+                </div>
+                
+                <div style="padding: var(--spacing-md); background: var(--color-bg-main); border-radius: var(--border-radius); margin-bottom: var(--spacing-md);">
+                    <h3 style="margin-bottom: var(--spacing-sm);">
+                        <i class="fas fa-code-branch" style="color: var(--color-highlight);"></i>
+                        Versi Sistem
+                    </h3>
+                    <p style="font-size: var(--font-size-lg); color: var(--color-text-primary);">
+                        <strong>v2.0.0</strong> - Professional Design Update
+                    </p>
+                </div>
+                
+                <div style="padding: var(--spacing-md); background: var(--color-bg-main); border-radius: var(--border-radius);">
+                    <h3 style="margin-bottom: var(--spacing-sm);">
+                        <i class="fas fa-headset" style="color: var(--color-mint);"></i>
+                        Sokongan Teknikal
+                    </h3>
+                    <p style="font-size: 16px; color: var(--color-text-secondary); line-height: 1.8;">
+                        Untuk sebarang pertanyaan atau bantuan teknikal, sila hubungi:<br>
+                        <strong>Sektor Pengurusan Sekolah, JPN Pahang</strong><br>
+                        📧 Email: sektorpengurusansekolahpahang@gmail.com<br>
+                        📞 Tel: 09-XXX XXXX
+                    </p>
+                </div>
+            </div>
         </section>
 
     </main>
@@ -162,6 +278,7 @@
         </style>
 </body>
 </html>
+
 
 
 
