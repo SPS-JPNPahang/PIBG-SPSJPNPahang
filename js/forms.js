@@ -11,6 +11,7 @@ const FormUI = {
         this.setupSchoolLookup();
         this.setupDateRestrictions();
         this.loadSystemConfig();
+        this.setTarikhPermohonan();
     },
 
     loadSystemConfig: async function() {
@@ -27,6 +28,13 @@ const FormUI = {
         } catch (err) {
             console.error('Failed to load config:', err);
         }
+    },
+
+    setTarikhPermohonan: function() {
+        const today = new Date();
+        const todayStr = today.toLocaleDateString('ms-MY', { day: '2-digit', month: 'short', year: 'numeric' }).toUpperCase();
+        const el = document.getElementById('f-tarikhpermohonan');
+        if (el) el.value = todayStr;
     },
 
     renderForm: function () {
@@ -104,6 +112,11 @@ const FormUI = {
                     </h3>
                     <div class="grid md:grid-cols-2 gap-4">
                         <div>
+                            <label class="block text-sm font-medium mb-1">Tarikh Permohonan</label>
+                            <input id="f-tarikhpermohonan" type="text" readonly class="w-full border border-gray-300 rounded-lg px-3 py-2 bg-gray-50 text-gray-700 font-semibold" value="">
+                            <p class="text-xs text-gray-600 mt-1">📅 Tarikh permohonan (automatik)</p>
+                        </div>
+                        <div>
                             <label class="block text-sm font-medium mb-1">Tarikh Cadangan MAT <span class="text-red-500">*</span></label>
                             <input id="f-tarikhmat" type="text" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-purple-500" placeholder="Klik untuk pilih tarikh" readonly>
                             <p class="text-xs text-gray-600 mt-1">
@@ -116,7 +129,7 @@ const FormUI = {
                             <label class="block text-sm font-medium mb-1">Masa MAT <span class="text-red-500">*</span></label>
                             <input id="f-masamat" type="time" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-purple-500">
                         </div>
-                        <div class="md:col-span-2">
+                        <div>
                             <label class="block text-sm font-medium mb-1">Tempat MAT <span class="text-red-500">*</span></label>
                             <input id="f-tempatmat" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-purple-500" 
                                    placeholder="Contoh: Dewan Sekolah">
@@ -321,6 +334,7 @@ const FormUI = {
         const tahun = document.getElementById("f-tahun").value.trim();
         const rujukan = document.getElementById("f-rujukan").value.trim();
         const tarikhSurat = document.getElementById("f-tarikhsurat").value;
+        const tarikhPermohonan = new Date().toISOString().split('T')[0];
         const tarikhMAT = document.getElementById("f-tarikhmat").value;
         const masaMAT = document.getElementById("f-masamat").value;
         const tempatMAT = document.getElementById("f-tempatmat").value.trim();
@@ -367,6 +381,7 @@ const FormUI = {
                     schoolEmail: email,
                     rujukanSurat: rujukan,
                     tarikhRujukanSurat: tarikhSurat,
+                    tarikhPermohonan: tarikhPermohonan,
                     tarikhMAT: tarikhMAT,
                     masaMAT: masaMAT,
                     tempatMAT: tempatMAT,
@@ -391,11 +406,77 @@ const FormUI = {
                 return Util.toast(res.message || "Gagal hantar permohonan.", "error", 5000);
             }
 
-            Util.toast("Permohonan berjaya dihantar!", "success");
+            Util.toast("✓ Permohonan berjaya dihantar!", "success", 3000);
 
-            // Clear form
-            document.getElementById("f-kod").value = '';
-            document.getElementById("f-email").value = '';
+            // Show enhanced success message
+            document.getElementById("form-result").innerHTML = `
+                <div class="p-6 bg-green-50 border-2 border-green-400 rounded-lg shadow-lg mb-6">
+                    <div class="flex items-center gap-3 mb-4">
+                        <div style="width: 60px; height: 60px; background: linear-gradient(135deg, #10b981, #34d399); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                            <i class="fas fa-check text-white text-3xl"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-xl text-green-800">Permohonan Berjaya Dihantar!</h4>
+                            <p class="text-sm text-green-700">Permohonan anda telah diterima untuk semakan</p>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white p-5 rounded-lg border-2 border-green-200 mb-4">
+                        <div class="grid gap-3">
+                            <div class="flex justify-between items-center py-2 border-b">
+                                <span class="font-semibold text-gray-700">ID Permohonan:</span>
+                                <span class="font-mono font-bold text-2xl text-blue-600">${res.reqId}</span>
+                            </div>
+                            <div class="flex justify-between items-center py-2 border-b">
+                                <span class="font-semibold text-gray-700">Kod Sekolah:</span>
+                                <span class="font-mono font-bold text-lg text-gray-800">${kod}</span>
+                            </div>
+                            <div class="flex justify-between items-center py-2">
+                                <span class="font-semibold text-gray-700">Status:</span>
+                                <span class="px-4 py-1 bg-blue-100 text-blue-800 rounded-full font-semibold text-sm">BARU - Menunggu Semakan</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-blue-50 p-4 rounded-lg border-l-4 border-blue-500 mb-4">
+                        <h5 class="font-bold text-blue-900 mb-2 flex items-center gap-2">
+                            <i class="fas fa-info-circle"></i>
+                            Langkah Seterusnya
+                        </h5>
+                        <ul class="text-sm text-blue-800 space-y-2 ml-6">
+                            <li class="flex items-start gap-2">
+                                <span class="font-bold">1.</span>
+                                <span>Simpan <strong>ID Permohonan</strong> dan <strong>Kod Sekolah</strong> untuk rujukan</span>
+                            </li>
+                            <li class="flex items-start gap-2">
+                                <span class="font-bold">2.</span>
+                                <span>Emel pengesahan akan dihantar ke <strong>${email}</strong></span>
+                            </li>
+                            <li class="flex items-start gap-2">
+                                <span class="font-bold">3.</span>
+                                <span>Anda boleh semak status permohonan menggunakan tab <strong>"Semakan"</strong></span>
+                            </li>
+                            <li class="flex items-start gap-2">
+                                <span class="font-bold">4.</span>
+                                <span>Permohonan akan disemak dalam tempoh <strong>3-5 hari bekerja</strong></span>
+                            </li>
+                        </ul>
+                    </div>
+                    
+                    <div class="flex gap-3 justify-center">
+                        <button onclick="window.location.reload()" class="px-6 py-3 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700 transition flex items-center gap-2">
+                            <i class="fas fa-plus-circle"></i>
+                            Permohonan Baru
+                        </button>
+                        <button onclick="document.querySelector('[data-tab=semak]').click()" class="px-6 py-3 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition flex items-center gap-2">
+                            <i class="fas fa-search"></i>
+                            Semak Status
+                        </button>
+                    </div>
+                </div>
+            `;
+
+            // Clear form (keep kod and email for easy next submission)
             document.getElementById("f-nama-sekolah").value = '';
             document.getElementById("f-kategori").value = '';
             document.getElementById("f-daerah").value = '';
@@ -412,30 +493,6 @@ const FormUI = {
             document.getElementById("f-surat").value = '';
             document.getElementById("f-minit").value = '';
             document.getElementById("f-kertas").value = '';
-
-            // Show success message
-            document.getElementById("form-result").innerHTML = `
-                <div class="p-6 bg-green-50 border-2 border-green-300 rounded-lg">
-                    <div class="flex items-center gap-3 mb-3">
-                        <i class="fas fa-check-circle text-green-600 text-3xl"></i>
-                        <div>
-                            <h4 class="font-semibold text-lg text-green-800">Permohonan Diterima</h4>
-                            <p class="text-sm text-green-700">Permohonan anda telah berjaya dihantar untuk semakan.</p>
-                        </div>
-                    </div>
-                    <div class="bg-white p-4 rounded-lg">
-                        <div class="text-sm">
-                            <div class="flex justify-between py-2 border-b">
-                                <span class="font-medium">ID Permohonan:</span>
-                                <span class="font-mono font-bold text-blue-600">${res.reqId}</span>
-                            </div>
-                            <div class="py-2">
-                                <p class="text-gray-600">Sila simpan ID Permohonan ini untuk semakan status.</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            `;
 
             // Scroll to top
             window.scrollTo({ top: 0, behavior: 'smooth' });
