@@ -77,6 +77,11 @@ const FormUI = {
                                    placeholder="(Auto-fill)">
                         </div>
                         <div>
+                            <label class="block text-sm font-medium mb-1">Poskod</label>
+                            <input id="f-poskod" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500" 
+                                   placeholder="Cth: 24500">
+                        </div>
+                        <div>
                             <label class="block text-sm font-medium mb-1">Tahun <span class="text-red-500">*</span></label>
                             <select id="f-tahun" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500" required>
                                 <option value="">-- Pilih Tahun --</option>
@@ -327,6 +332,7 @@ const FormUI = {
     const namaSekolah = document.getElementById("f-nama-sekolah").value.trim();
     const kategori = document.getElementById("f-kategori").value.trim();
     const daerah = document.getElementById("f-daerah").value.trim();
+    const poskod = (document.getElementById("f-poskod") ? document.getElementById("f-poskod").value.trim() : '');
     const tahun = document.getElementById("f-tahun").value.trim();
     const rujukan = document.getElementById("f-rujukan").value.trim();
     const tarikhSurat = document.getElementById("f-tarikhsurat").value;
@@ -393,7 +399,8 @@ const FormUI = {
                 schoolCode: kod, 
                 schoolName: namaSekolah, 
                 kategori: kategori, 
-                daerah: daerah, 
+                daerah: daerah,
+                poskod: poskod,
                 tahun: tahun, 
                 schoolEmail: email, 
                 rujukanSurat: rujukan, 
@@ -502,6 +509,7 @@ const FormUI = {
         document.getElementById("f-surat").value = '';
         document.getElementById("f-minit").value = '';
         document.getElementById("f-kertas").value = '';
+        document.getElementById("f-poskod").value = '';
 
         window.scrollTo({top: 0, behavior: 'smooth'});
         
@@ -515,4 +523,5 @@ const FormUI = {
 
 // Auto initialize
 document.addEventListener("DOMContentLoaded", () => FormUI.init());
+
 
