@@ -7,6 +7,7 @@ const FormUI = {
 
     init: function () {
         this.renderForm();
+        this.populateYearDropdown();
         this.setupSchoolLookup();
         this.setupDateRestrictions();
         this.loadSystemConfig();
@@ -66,6 +67,13 @@ const FormUI = {
                             <label class="block text-sm font-medium mb-1">Daerah</label>
                             <input id="f-daerah" readonly class="w-full border border-gray-300 rounded-lg px-3 py-2 bg-gray-50 text-gray-700" 
                                    placeholder="(Auto-fill)">
+                        </div>
+                        <!-- TAMBAH INI -->
+                        <div>
+                            <label class="block text-sm font-medium mb-1">Tahun <span class="text-red-500">*</span></label>
+                            <select id="f-tahun" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500" required>
+                                <option value="">-- Pilih Tahun --</option>
+                            </select>
                         </div>
                     </div>
                 </div>
@@ -182,7 +190,20 @@ const FormUI = {
 
         document.getElementById("btn-hantar").onclick = () => this.submitForm();
     },
-
+    
+    populateYearDropdown: function() {
+        const yearSelect = document.getElementById('f-tahun');
+        const currentYear = new Date().getFullYear();
+        
+        for (let i = 0; i < 5; i++) {
+            const year = currentYear + i;
+            const option = document.createElement('option');
+            option.value = year;
+            option.textContent = year;
+            yearSelect.appendChild(option);
+        }
+    },
+    
     setupSchoolLookup: function() {
         const kodInput = document.getElementById('f-kod');
         
@@ -276,6 +297,7 @@ const FormUI = {
         const namaSekolah = document.getElementById("f-nama-sekolah").value.trim();
         const kategori = document.getElementById("f-kategori").value.trim();
         const daerah = document.getElementById("f-daerah").value.trim();
+        const tahun = document.getElementById("f-tahun").value.trim();
         const rujukan = document.getElementById("f-rujukan").value.trim();
         const tarikhSurat = document.getElementById("f-tarikhsurat").value;
         const tarikhMAT = document.getElementById("f-tarikhmat").value;
@@ -291,7 +313,7 @@ const FormUI = {
         const fKertas = document.getElementById("f-kertas").files[0];
 
         // Validate
-        if (!kod || !email || !namaSekolah || !rujukan || !tarikhSurat || !tarikhMAT || 
+        if (!kod || !email || !namaSekolah || !tahun || !rujukan || !tarikhSurat || !tarikhMAT || 
             !masaMAT || !tempatMAT || !perasmi || !jawatan || !penghubung || !telefon) {
             return Util.toast("Sila lengkapkan semua ruangan bertanda *", "error");
         }
@@ -315,6 +337,7 @@ const FormUI = {
                 schoolName: namaSekolah,
                 kategori: kategori,
                 daerah: daerah,
+                tahun: tahun,
                 schoolEmail: email,
                 rujukanSurat: rujukan,
                 tarikhRujukanSurat: tarikhSurat,
@@ -368,3 +391,4 @@ const FormUI = {
 
 // Auto initialize
 document.addEventListener("DOMContentLoaded", () => FormUI.init());
+
