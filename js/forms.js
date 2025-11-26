@@ -321,168 +321,198 @@ const FormUI = {
         });
     },
 
-    submitForm: async function () {
-        const kod = document.getElementById("f-kod").value.trim();
-        const email = document.getElementById("f-email").value.trim();
-        const namaSekolah = document.getElementById("f-nama-sekolah").value.trim();
-        const kategori = document.getElementById("f-kategori").value.trim();
-        const daerah = document.getElementById("f-daerah").value.trim();
-        const tahun = document.getElementById("f-tahun").value.trim();
-        const rujukan = document.getElementById("f-rujukan").value.trim();
-        const tarikhSurat = document.getElementById("f-tarikhsurat").value;
-        const tarikhPermohonan = new Date().toISOString().split('T')[0];
-        const tarikhMAT = document.getElementById("f-tarikhmat").value;
-        const masaMAT = document.getElementById("f-masamat").value;
-        const tempatMAT = document.getElementById("f-tempatmat").value.trim();
-        const perasmi = document.getElementById("f-perasmi").value.trim();
-        const jawatan = document.getElementById("f-jawatan").value.trim();
-        const penghubung = document.getElementById("f-penghubung").value.trim();
-        const telefon = document.getElementById("f-telefon").value.trim();
-        const fSurat = document.getElementById("f-surat").files[0];
-        const fMinit = document.getElementById("f-minit").files[0];
-        const fKertas = document.getElementById("f-kertas").files[0];
+   submitForm: async function () {
+    const kod = document.getElementById("f-kod").value.trim();
+    const email = document.getElementById("f-email").value.trim();
+    const namaSekolah = document.getElementById("f-nama-sekolah").value.trim();
+    const kategori = document.getElementById("f-kategori").value.trim();
+    const daerah = document.getElementById("f-daerah").value.trim();
+    const tahun = document.getElementById("f-tahun").value.trim();
+    const rujukan = document.getElementById("f-rujukan").value.trim();
+    const tarikhSurat = document.getElementById("f-tarikhsurat").value;
+    const tarikhPermohonan = new Date().toISOString().split('T')[0];
+    const tarikhMAT = document.getElementById("f-tarikhmat").value;
+    const masaMAT = document.getElementById("f-masamat").value;
+    const tempatMAT = document.getElementById("f-tempatmat").value.trim();
+    const perasmi = document.getElementById("f-perasmi").value.trim();
+    const jawatan = document.getElementById("f-jawatan").value.trim();
+    const penghubung = document.getElementById("f-penghubung").value.trim();
+    const telefon = document.getElementById("f-telefon").value.trim();
+    const fSurat = document.getElementById("f-surat").files[0];
+    const fMinit = document.getElementById("f-minit").files[0];
+    const fKertas = document.getElementById("f-kertas").files[0];
 
-        if (!kod || !email || !namaSekolah || !tahun || !rujukan || !tarikhSurat || !tarikhMAT || !masaMAT || !tempatMAT || !perasmi || !jawatan || !penghubung || !telefon) {
-            return Util.toast("Sila lengkapkan semua ruangan bertanda *", "error");
-        }
-        if (!fSurat || !fMinit || !fKertas) {
-            return Util.toast("Semua 3 dokumen PDF wajib dimuat naik.", "error");
-        }
+    if (!kod || !email || !namaSekolah || !tahun || !rujukan || !tarikhSurat || !tarikhMAT || !masaMAT || !tempatMAT || !perasmi || !jawatan || !penghubung || !telefon) {
+        return Util.toast("Sila lengkapkan semua ruangan bertanda *", "error");
+    }
+    if (!fSurat || !fMinit || !fKertas) {
+        return Util.toast("Semua 3 dokumen PDF wajib dimuat naik.", "error");
+    }
 
-        const loadingEl = document.getElementById('loading-overlay');
-        if (loadingEl) loadingEl.style.display = 'flex';
-        Util.toast("Memproses permohonan...", "info", 2000);
+    const loadingEl = document.getElementById('loading-overlay');
+    if (loadingEl) loadingEl.style.display = 'flex';
+    Util.toast("Memproses permohonan...", "info", 2000);
 
-        try {
-            const bSurat = await Util.fileToBase64(fSurat);
-            const bMinit = await Util.fileToBase64(fMinit);
-            const bKertas = await Util.fileToBase64(fKertas);
+    try {
+        // ambil base64 object dengan Util.fileToBase64 (yang return {name,type,data})
+        const suratObj = await Util.fileToBase64(fSurat);
+        const minitObj = await Util.fileToBase64(fMinit);
+        const kertasObj = await Util.fileToBase64(fKertas);
 
-            const res = await Util.postJSON({
-                type: "new",
-                payload: {
-                    schoolCode: kod, 
-                    schoolName: namaSekolah, 
-                    kategori: kategori, 
-                    daerah: daerah, 
-                    tahun: tahun, 
-                    schoolEmail: email, 
-                    rujukanSurat: rujukan, 
-                    tarikhRujukanSurat: tarikhSurat, 
-                    tarikhPermohonan: tarikhPermohonan, 
-                    tarikhMAT: tarikhMAT, 
-                    masaMAT: masaMAT, 
-                    tempatMAT: tempatMAT, 
-                    namaPerasmi: perasmi, 
-                    jawatanPerasmi: jawatan, 
-                    namaPenghubung: penghubung, 
-                    noTelefon: telefon
-                },
-                filesBase64: {
-                    suratRasmi: bSurat, 
-                    minitMesyuarat: bMinit, 
-                    kertasCadangan: bKertas
-                }
-            });
+        // normalisasi: ambil pure base64 string tanpa prefix/whitespace
+        const normalizeBase64 = (x) => {
+            if (!x) return '';
+            if (typeof x === 'string') return x.replace(/^data:.*;base64,/, '').replace(/\s+/g, '');
+            if (typeof x === 'object' && x.data) return String(x.data).replace(/\s+/g, '');
+            return '';
+        };
 
-            if (loadingEl) loadingEl.style.display = 'none';
-            if (!res.ok) return Util.toast(res.message || "Gagal", "error", 5000);
+        const bSurat = normalizeBase64(suratObj);
+        const bMinit = normalizeBase64(minitObj);
+        const bKertas = normalizeBase64(kertasObj);
 
-            Util.toast("✓ Permohonan berjaya dihantar!", "success", 3000);
+        const namaSurat = (suratObj && suratObj.name) ? suratObj.name : 'SuratPermohonan.pdf';
+        const namaMinit = (minitObj && minitObj.name) ? minitObj.name : 'MinitMesyuaratJK.pdf';
+        const namaKertas = (kertasObj && kertasObj.name) ? kertasObj.name : 'KertasCadangan.pdf';
 
-            document.getElementById("form-result").innerHTML = `
-                <div class="p-6 bg-green-50 border-2 border-green-400 rounded-lg shadow-lg mb-6">
-                    <div class="flex items-center gap-3 mb-4">
-                        <div style="width: 60px; height: 60px; background: linear-gradient(135deg, #10b981, #34d399); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
-                            <i class="fas fa-check text-white text-3xl"></i>
-                        </div>
-                        <div>
-                            <h4 class="font-bold text-xl text-green-800">Permohonan Berjaya Dihantar!</h4>
-                            <p class="text-sm text-green-700">Permohonan anda telah diterima untuk semakan</p>
-                        </div>
+        // debug logs
+        console.log('UPLOAD DEBUG lengths:', {
+            surat_len: bSurat.length,
+            minit_len: bMinit.length,
+            kertas_len: bKertas.length
+        });
+        console.log('UPLOAD DEBUG prefixes:', {
+            surat_pref: bSurat.substring(0,40),
+            minit_pref: bMinit.substring(0,40),
+            kertas_pref: bKertas.substring(0,40)
+        });
+
+        const res = await Util.postJSON({
+            type: "new",
+            payload: {
+                schoolCode: kod, 
+                schoolName: namaSekolah, 
+                kategori: kategori, 
+                daerah: daerah, 
+                tahun: tahun, 
+                schoolEmail: email, 
+                rujukanSurat: rujukan, 
+                tarikhRujukanSurat: tarikhSurat, 
+                tarikhPermohonan: tarikhPermohonan, 
+                tarikhMAT: tarikhMAT, 
+                masaMAT: masaMAT, 
+                tempatMAT: tempatMAT, 
+                namaPerasmi: perasmi, 
+                jawatanPerasmi: jawatan, 
+                namaPenghubung: penghubung, 
+                noTelefon: telefon
+            },
+            filesBase64: {
+                suratRasmi: { name: namaSurat, data: bSurat },
+                minitMesyuarat: { name: namaMinit, data: bMinit },
+                kertasCadangan: { name: namaKertas, data: bKertas }
+            }
+        });
+
+        if (loadingEl) loadingEl.style.display = 'none';
+        if (!res.ok) return Util.toast(res.message || "Gagal", "error", 5000);
+
+        Util.toast("✓ Permohonan berjaya dihantar!", "success", 3000);
+
+        document.getElementById("form-result").innerHTML = `
+            <div class="p-6 bg-green-50 border-2 border-green-400 rounded-lg shadow-lg mb-6">
+                <div class="flex items-center gap-3 mb-4">
+                    <div style="width: 60px; height: 60px; background: linear-gradient(135deg, #10b981, #34d399); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                        <i class="fas fa-check text-white text-3xl"></i>
                     </div>
-                    
-                    <div class="bg-white p-5 rounded-lg border-2 border-green-200 mb-4">
-                        <div class="grid gap-3">
-                            <div class="flex justify-between items-center py-2 border-b">
-                                <span class="font-semibold text-gray-700">ID Permohonan:</span>
-                                <span class="font-mono font-bold text-2xl text-blue-600">${res.reqId}</span>
-                            </div>
-                            <div class="flex justify-between items-center py-2 border-b">
-                                <span class="font-semibold text-gray-700">Kod Sekolah:</span>
-                                <span class="font-mono font-bold text-lg text-gray-800">${kod}</span>
-                            </div>
-                            <div class="flex justify-between items-center py-2">
-                                <span class="font-semibold text-gray-700">Status:</span>
-                                <span class="px-4 py-1 bg-blue-100 text-blue-800 rounded-full font-semibold text-sm">BARU - Menunggu Semakan</span>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="bg-blue-50 p-4 rounded-lg border-l-4 border-blue-500 mb-4">
-                        <h5 class="font-bold text-blue-900 mb-2 flex items-center gap-2">
-                            <i class="fas fa-info-circle"></i>
-                            Langkah Seterusnya
-                        </h5>
-                        <ul class="text-sm text-blue-800 space-y-2 ml-6">
-                            <li class="flex items-start gap-2">
-                                <span class="font-bold">1.</span>
-                                <span>Simpan <strong>ID Permohonan</strong> dan <strong>Kod Sekolah</strong> untuk rujukan</span>
-                            </li>
-                            <li class="flex items-start gap-2">
-                                <span class="font-bold">2.</span>
-                                <span>Emel pengesahan akan dihantar ke <strong>${email}</strong></span>
-                            </li>
-                            <li class="flex items-start gap-2">
-                                <span class="font-bold">3.</span>
-                                <span>Anda boleh semak status permohonan menggunakan tab <strong>"Semakan"</strong></span>
-                            </li>
-                            <li class="flex items-start gap-2">
-                                <span class="font-bold">4.</span>
-                                <span>Permohonan akan disemak dalam tempoh <strong>3-5 hari bekerja</strong></span>
-                            </li>
-                        </ul>
-                    </div>
-                    
-                    <div class="flex gap-3 justify-center">
-                        <button onclick="window.location.reload()" class="px-6 py-3 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700 transition flex items-center gap-2">
-                            <i class="fas fa-plus-circle"></i>
-                            Permohonan Baru
-                        </button>
-                        <button onclick="document.querySelector('[data-tab=semak]').click()" class="px-6 py-3 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition flex items-center gap-2">
-                            <i class="fas fa-search"></i>
-                            Semak Status
-                        </button>
+                    <div>
+                        <h4 class="font-bold text-xl text-green-800">Permohonan Berjaya Dihantar!</h4>
+                        <p class="text-sm text-green-700">Permohonan anda telah diterima untuk semakan</p>
                     </div>
                 </div>
-            `;
+                
+                <div class="bg-white p-5 rounded-lg border-2 border-green-200 mb-4">
+                    <div class="grid gap-3">
+                        <div class="flex justify-between items-center py-2 border-b">
+                            <span class="font-semibold text-gray-700">ID Permohonan:</span>
+                            <span class="font-mono font-bold text-2xl text-blue-600">${res.reqId}</span>
+                        </div>
+                        <div class="flex justify-between items-center py-2 border-b">
+                            <span class="font-semibold text-gray-700">Kod Sekolah:</span>
+                            <span class="font-mono font-bold text-lg text-gray-800">${kod}</span>
+                        </div>
+                        <div class="flex justify-between items-center py-2">
+                            <span class="font-semibold text-gray-700">Status:</span>
+                            <span class="px-4 py-1 bg-blue-100 text-blue-800 rounded-full font-semibold text-sm">BARU - Menunggu Semakan</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bg-blue-50 p-4 rounded-lg border-l-4 border-blue-500 mb-4">
+                    <h5 class="font-bold text-blue-900 mb-2 flex items-center gap-2">
+                        <i class="fas fa-info-circle"></i>
+                        Langkah Seterusnya
+                    </h5>
+                    <ul class="text-sm text-blue-800 space-y-2 ml-6">
+                        <li class="flex items-start gap-2">
+                            <span class="font-bold">1.</span>
+                            <span>Simpan <strong>ID Permohonan</strong> dan <strong>Kod Sekolah</strong> untuk rujukan</span>
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <span class="font-bold">2.</span>
+                            <span>Emel pengesahan akan dihantar ke <strong>${email}</strong></span>
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <span class="font-bold">3.</span>
+                            <span>Anda boleh semak status permohonan menggunakan tab <strong>"Semakan"</strong></span>
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <span class="font-bold">4.</span>
+                            <span>Permohonan akan disemak dalam tempoh <strong>3-5 hari bekerja</strong></span>
+                        </li>
+                    </ul>
+                </div>
+                
+                <div class="flex gap-3 justify-center">
+                    <button onclick="window.location.reload()" class="px-6 py-3 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700 transition flex items-center gap-2">
+                        <i class="fas fa-plus-circle"></i>
+                        Permohonan Baru
+                    </button>
+                    <button onclick="document.querySelector('[data-tab=semak]').click()" class="px-6 py-3 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition flex items-center gap-2">
+                        <i class="fas fa-search"></i>
+                        Semak Status
+                    </button>
+                </div>
+            </div>
+        `;
 
-            document.getElementById("f-nama-sekolah").value = '';
-            document.getElementById("f-kategori").value = '';
-            document.getElementById("f-daerah").value = '';
-            document.getElementById("f-tahun").value = '';
-            document.getElementById("f-rujukan").value = '';
-            document.getElementById("f-tarikhsurat").value = '';
-            document.getElementById("f-tarikhmat").value = '';
-            document.getElementById("f-masamat").value = '';
-            document.getElementById("f-tempatmat").value = '';
-            document.getElementById("f-perasmi").value = '';
-            document.getElementById("f-jawatan").value = '';
-            document.getElementById("f-penghubung").value = '';
-            document.getElementById("f-telefon").value = '';
-            document.getElementById("f-surat").value = '';
-            document.getElementById("f-minit").value = '';
-            document.getElementById("f-kertas").value = '';
+        document.getElementById("f-nama-sekolah").value = '';
+        document.getElementById("f-kategori").value = '';
+        document.getElementById("f-daerah").value = '';
+        document.getElementById("f-tahun").value = '';
+        document.getElementById("f-rujukan").value = '';
+        document.getElementById("f-tarikhsurat").value = '';
+        document.getElementById("f-tarikhmat").value = '';
+        document.getElementById("f-masamat").value = '';
+        document.getElementById("f-tempatmat").value = '';
+        document.getElementById("f-perasmi").value = '';
+        document.getElementById("f-jawatan").value = '';
+        document.getElementById("f-penghubung").value = '';
+        document.getElementById("f-telefon").value = '';
+        document.getElementById("f-surat").value = '';
+        document.getElementById("f-minit").value = '';
+        document.getElementById("f-kertas").value = '';
 
-            window.scrollTo({top: 0, behavior: 'smooth'});
-            
-        } catch (error) {
-            if (loadingEl) loadingEl.style.display = 'none';
-            Util.toast("Error: " + error.message, "error", 5000);
-        }
+        window.scrollTo({top: 0, behavior: 'smooth'});
+        
+    } catch (error) {
+        if (loadingEl) loadingEl.style.display = 'none';
+        Util.toast("Error: " + (error && error.message ? error.message : String(error)), "error", 5000);
     }
+}
 
 };
 
 // Auto initialize
 document.addEventListener("DOMContentLoaded", () => FormUI.init());
+
