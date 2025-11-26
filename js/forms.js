@@ -271,30 +271,37 @@ const FormUI = {
     }
     
     // Initialize Flatpickr
-    flatpickr("#f-tarikhmat", {
-        minDate: minDate,
-        maxDate: maxDate,
-        dateFormat: "Y-m-d",
-        
-        disable: [
+   flatpickr("#f-tarikhmat", {
+    minDate: minDate,
+    maxDate: maxDate,
+    dateFormat: "Y-m-d",
+    altInput: true,
+    altFormat: "d M Y",
+    locale: {
+        months: {
+            shorthand: ['JAN', 'FEB', 'MAC', 'APR', 'MEI', 'JUN', 'JUL', 'OGO', 'SEP', 'OKT', 'NOV', 'DIS'],
+            longhand: ['Januari', 'Februari', 'Mac', 'April', 'Mei', 'Jun', 'Julai', 'Ogos', 'September', 'Oktober', 'November', 'Disember']
+        },
+        weekdays: {
+            shorthand: ['AHD', 'ISN', 'SEL', 'RAB', 'KHA', 'JUM', 'SAB'],
+            longhand: ['Ahad', 'Isnin', 'Selasa', 'Rabu', 'Khamis', 'Jumaat', 'Sabtu']
+        }
+    },
+    
+    disable: [
         function(date) {
             const day = date.getDay();
-            
-            // Disable weekdays
             if (day >= 1 && day <= 5) return true;
-            
-            // Disable Sabtu minggu 1,3,5
             if (day === 6) {
                 const d = date.getDate();
                 const first = new Date(date.getFullYear(), date.getMonth(), 1).getDay();
                 const week = Math.ceil((d + first) / 7);
                 if (![2, 4].includes(week)) return true;
             }
-            
             return false;
         }
     ],
-            
+    
             onChange: function(selectedDates, dateStr) {
                 if (selectedDates.length > 0) {
                     const day = selectedDates[0].getDay();
@@ -413,5 +420,6 @@ const FormUI = {
 
 // Auto initialize
 document.addEventListener("DOMContentLoaded", () => FormUI.init());
+
 
 
