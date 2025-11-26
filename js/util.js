@@ -37,7 +37,7 @@ const Util = {
    // ---------- HTTP POST Helper ----------
     postJSON: async function (body) {
         const url = (CONFIG.API_PROXY_URL && CONFIG.API_PROXY_URL.length) ? CONFIG.API_PROXY_URL : CONFIG.APPS_SCRIPT_URL;
-        const timeout = CONFIG.REQUEST_TIMEOUT || 30000;
+        const timeout = CONFIG.REQUEST_TIMEOUT || 60000;
     
         try {
             const controller = new AbortController();
@@ -110,6 +110,7 @@ const Util = {
 
 // Expose to global
 window.Util = Util;
+
 
 
 
