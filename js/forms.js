@@ -349,15 +349,15 @@ const FormUI = {
     const fKertas = document.getElementById("f-kertas").files[0];
 
     if (!kod || !email || !namaSekolah || !tahun || !rujukan || !tarikhSurat || !tarikhMAT || !masaMAT || !tempatMAT || !perasmi || !jawatan || !penghubung || !telefon) {
-        return Util.toast("Sila lengkapkan semua ruangan bertanda *", "error");
+    return notify.error("Sila lengkapkan semua ruangan yang bertanda bintang (*)");
     }
     if (!fSurat || !fMinit || !fKertas) {
-        return Util.toast("Semua 3 dokumen PDF wajib dimuat naik.", "error");
+        rreturn notify.error("Ketiga-tiga dokumen PDF (Surat, Minit, Kertas Cadangan) mesti dimuat naik");
     }
 
     const loadingEl = document.getElementById('loading-overlay');
     if (loadingEl) loadingEl.style.display = 'flex';
-    Util.toast("Memproses permohonan...", "info", 2000);
+    notify.loading("Sedang menghantar permohonan ke pelayan...");
 
     try {
         // ambil base64 object dengan Util.fileToBase64 (yang return {name,type,data})
@@ -422,9 +422,10 @@ const FormUI = {
         });
 
         if (loadingEl) loadingEl.style.display = 'none';
-        if (!res.ok) return Util.toast(res.message || "Gagal", "error", 5000);
+        notify.dismissLoading();
+        if (!res.ok) return notify.error(res.message || "Permohonan gagal dihantar. Sila cuba lagi.");
 
-        Util.toast("✓ Permohonan berjaya dihantar!", "success", 3000);
+        notify.successWithRef(kod, res.reqId);
 
         document.getElementById("form-result").innerHTML = `
             <div class="p-6 bg-green-50 border-2 border-green-400 rounded-lg shadow-lg mb-6">
@@ -514,8 +515,9 @@ const FormUI = {
         window.scrollTo({top: 0, behavior: 'smooth'});
         
     } catch (error) {
-        if (loadingEl) loadingEl.style.display = 'none';
-        Util.toast("Error: " + (error && error.message ? error.message : String(error)), "error", 5000);
+    if (loadingEl) loadingEl.style.display = 'none';
+    notify.dismissLoading();
+    notify.error("Ralat berlaku: " + (error && error.message ? error.message : String(error)));
     }
 }
 
@@ -523,5 +525,6 @@ const FormUI = {
 
 // Auto initialize
 document.addEventListener("DOMContentLoaded", () => FormUI.init());
+
 
 
