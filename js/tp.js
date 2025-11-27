@@ -53,13 +53,17 @@ const TPUI = {
                         <i class="fas fa-sync mr-1"></i>
                         Refresh
                     </button>
+                   <button id="tp-select-all" class="ml-2 px-3 py-1 border rounded hover:bg-gray-100">
+                        <i class="fas fa-check-square mr-1"></i>
+                        Pilih Semua
+                    </button>
                     <button id="tp-approve" class="ml-2 px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700">
                         <i class="fas fa-check mr-1"></i>
-                        Luluskan
+                        Luluskan Terpilih
                     </button>
                     <button id="tp-generate" class="ml-2 px-3 py-1 bg-purple-600 text-white rounded hover:bg-purple-700">
                         <i class="fas fa-file-pdf mr-1"></i>
-                        Generate Surat
+                        Jana Surat Terpilih
                     </button>
                 </div>
 
@@ -83,15 +87,32 @@ const TPUI = {
         `;
 
         // Event handlers
-        document.getElementById("tp-refresh").onclick = () => this.loadList();
-        document.getElementById("tp-logout").onclick = () => AuthUI.logout();
-        document.getElementById("tp-approve").onclick = () => this.approveSelected();
-        document.getElementById("tp-generate").onclick = () => this.generateSelected();
-        document.getElementById("tp-save-config").onclick = () => this.saveConfig();
+        document.getElementById('tp-refresh').onclick = () => this.loadList();
+        document.getElementById('tp-logout').onclick = () => AuthUI.logout();
+        document.getElementById('tp-select-all').onclick = () => this.selectAll();
+        document.getElementById('tp-approve').onclick = () => this.approveSelected();
+        document.getElementById('tp-generate').onclick = () => this.generateSelected();
+        document.getElementById('tp-save-config').onclick = () => this.saveConfig();
         
         // Load data
         this.loadConfig();
         this.loadList();
+    },
+
+    selectAll: function () {
+        const checkboxes = document.querySelectorAll('.tp-check');
+        const allChecked = [...checkboxes].every(cb => cb.checked);
+        
+        checkboxes.forEach(cb => {
+            cb.checked = !allChecked;
+        });
+        
+        const btn = document.getElementById('tp-select-all');
+        if (allChecked) {
+            btn.innerHTML = '<i class="fas fa-check-square mr-1"></i> Pilih Semua';
+        } else {
+            btn.innerHTML = '<i class="fas fa-square mr-1"></i> Nyahpilih Semua';
+        }
     },
 
     loadConfig: async function() {
@@ -213,56 +234,112 @@ const TPUI = {
 
     approveSelected: async function () {
         const ids = [...document.querySelectorAll(".tp-check:checked")].map(i => i.value);
-        if (!ids.length) return Util.toast("Tiada permohonan dipilih.", "error");
+        if (!ids.length) return notify.warning("Sila pilih sekurang-kurangnya satu permohonan.");
 
-        if (!confirm("Sahkan lulus " + ids.length + " permohonan terpilih?")) return;
+        notify.confirm(
+            `Anda pasti untuk meluluskan ${ids.length} permohonan terpilih?`,
+            async () => {
+                notify.loading("Memproses kelulusan...");
+                
+                const token = Util.getToken();
+                const res = await Util.postJSON({
+                    type: "approve",
+                    authToken: token,
+                    payload: { reqIds: ids, action: "lulus" }
+                });
 
-        const token = Util.getToken();
-        const res = await Util.postJSON({
-            type: "approve",
-            authToken: token,
-            payload: { reqIds: ids, action: "lulus" }
-        });
+                notify.dismissLoading();
 
-        if (!res.ok) return Util.toast(res.message, "error");
+                if (!res.ok) return notify.error(res.message || "Gagal meluluskan");
 
-        Util.toast("✓ Permohonan diluluskan!", "success");
-        this.loadList();
+                notify.success(`${ids.length} permohonan berjaya diluluskan!`);
+                this.loadList();
+            }
+        );
     },
 
     generateSelected: async function () {
         const ids = [...document.querySelectorAll(".tp-check:checked")].map(i => i.value);
-        if (!ids.length) return Util.toast("Tiada permohonan dipilih.", "error");
+        if (!ids.length) return notify.warning("Sila pilih sekurang-kurangnya satu permohonan.");
 
-        if (!confirm("Jana surat kelulusan untuk " + ids.length + " permohonan?")) return;
+        notify.confirm(
+            `Jana surat kelulusan untuk ${ids.length} permohonan terpilih?`,
+            async () => {
+                notify.loading("Menjana surat kelulusan...");
 
-        Util.toast("Menjana surat...", "info", 3000);
+                const token = Util.getToken();
+                const res = await Util.postJSON({
+                    type: "generateLetters",
+                    authToken: token,
+                    payload: { reqIds: ids }
+                });
 
-        const token = Util.getToken();
-        const res = await Util.postJSON({
-            type: "generateLetters",
-            authToken: token,
-            payload: { reqIds: ids }
+                notify.dismissLoading();
+
+                if (!res.ok) return notify.error(res.message || "Gagal jana surat");
+
+                notify.success(`${ids.length} surat kelulusan berjaya dijana!`);
+
+                // Show results in modal
+                this.showGeneratedLetters(res.letters);
+                this.loadList();
+            }
+        );
+    },
+
+    showGeneratedLetters: function (letters) {
+        let html = '<ul class="space-y-2">';
+        letters.forEach(l => {
+            html += `
+                <li class="flex items-center justify-between p-2 bg-gray-50 rounded">
+                    <span class="font-mono text-xs">${l.reqId}</span>
+                    <a href="${l.letterUrl}" target="_blank" class="text-blue-600 hover:underline text-sm">
+                        <i class="fas fa-file-pdf"></i> Lihat Surat
+                    </a>
+                </li>
+            `;
         });
+        html += '</ul>';
 
-        if (!res.ok) return Util.toast(res.message, "error");
+        const modalHTML = `
+            <div id="letters-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+                <div class="bg-white rounded-lg shadow-lg max-w-2xl w-full p-6">
+                    <div class="flex justify-between items-center mb-4 pb-3 border-b">
+                        <h3 class="text-lg font-semibold">
+                            <i class="fas fa-check-circle text-green-600"></i>
+                            Surat Kelulusan Dijana
+                        </h3>
+                        <button id="close-letters" class="text-gray-500 hover:text-gray-700">
+                            <i class="fas fa-times text-xl"></i>
+                        </button>
+                    </div>
+                    <div class="mb-4">
+                        <p class="text-sm text-gray-600 mb-3">
+                            ${letters.length} surat kelulusan telah berjaya dijana. Klik pada pautan untuk melihat surat.
+                        </p>
+                        ${html}
+                    </div>
+                    <div class="pt-3 border-t text-right">
+                        <button id="close-letters-btn" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
+                            Tutup
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `;
 
-        Util.toast("✓ Surat berjaya dijana!", "success");
+        document.body.insertAdjacentHTML('beforeend', modalHTML);
 
-        // Show results
-        let resultHtml = '<div class="mt-3 p-3 bg-green-50 rounded"><h5 class="font-semibold mb-2">Surat Dijana:</h5><ul class="text-sm">';
-        res.letters.forEach(l => {
-            resultHtml += `<li class="mb-1">• ${l.reqId}: <a href="${l.letterUrl}" target="_blank" class="text-blue-600 underline">Lihat Surat</a></li>`;
-        });
-        resultHtml += '</ul></div>';
-
-        const container = document.getElementById("tp-dashboard");
-        container.insertAdjacentHTML('beforeend', resultHtml);
-
-        this.loadList();
+        document.getElementById('close-letters').onclick = () => {
+            document.getElementById('letters-modal').remove();
+        };
+        document.getElementById('close-letters-btn').onclick = () => {
+            document.getElementById('letters-modal').remove();
+        };
     }
 
 };
 
 // Auto init
 document.addEventListener("DOMContentLoaded", () => TPUI.init());
+
