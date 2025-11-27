@@ -6,12 +6,12 @@
 const TPUI = {
 
     init: function () {
-        const role = Util.getRole();
-        if (role === "tp") {
-            document.getElementById("tp-login").classList.add("hidden");
-            document.getElementById("tp-dashboard").classList.remove("hidden");
-            this.loadDashboard();
-        }
+        //const role = Util.getRole();
+        //if (role === "tp") {
+        //    document.getElementById("tp-login").classList.add("hidden");
+        //    document.getElementById("tp-dashboard").classList.remove("hidden");
+        //    this.loadDashboard();
+        //}
     },
 
     loadDashboard: function () {
@@ -342,4 +342,5 @@ const TPUI = {
 
 // Auto init
 document.addEventListener("DOMContentLoaded", () => TPUI.init());
+
 
