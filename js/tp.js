@@ -211,7 +211,7 @@ const TPUI = {
                     </td>
                     <td class="py-2 px-2 font-mono text-xs">${req}</td>
                     <td class="py-2 px-2">${sekolah}</td>
-                    <td class="py-2 px-2">${tarikh}</td>
+                    <td class="py-2 px-2">${Util.formatMalayDate(tarikh)}</td>
                     <td class="py-2 px-2">
                         <span class="px-2 py-1 bg-yellow-100 text-yellow-800 rounded text-xs">${status}</span>
                     </td>
@@ -252,91 +252,12 @@ const TPUI = {
             }
         );
     },
-
-    generateSelected: async function () {
-        const ids = [...document.querySelectorAll(".tp-check:checked")].map(i => i.value);
-        if (!ids.length) return notify.warning("Sila pilih sekurang-kurangnya satu permohonan.");
-
-        notify.confirm(
-            `Jana surat kelulusan untuk ${ids.length} permohonan terpilih?`,
-            async () => {
-                notify.loading("Menjana surat kelulusan...");
-
-                const token = Util.getToken();
-                const res = await Util.postJSON({
-                    type: "generateLetters",
-                    authToken: token,
-                    payload: { reqIds: ids }
-                });
-
-                notify.dismissLoading();
-
-                if (!res.ok) return notify.error(res.message || "Gagal jana surat");
-
-                notify.success(`${ids.length} surat kelulusan berjaya dijana!`);
-
-                // Show results in modal
-                this.showGeneratedLetters(res.letters);
-                this.loadList();
-            }
-        );
-    },
-
-    showGeneratedLetters: function (letters) {
-        let html = '<ul class="space-y-2">';
-        letters.forEach(l => {
-            html += `
-                <li class="flex items-center justify-between p-2 bg-gray-50 rounded">
-                    <span class="font-mono text-xs">${l.reqId}</span>
-                    <a href="${l.letterUrl}" target="_blank" class="text-blue-600 hover:underline text-sm">
-                        <i class="fas fa-file-pdf"></i> Lihat Surat
-                    </a>
-                </li>
-            `;
-        });
-        html += '</ul>';
-
-        const modalHTML = `
-            <div id="letters-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-                <div class="bg-white rounded-lg shadow-lg max-w-2xl w-full p-6">
-                    <div class="flex justify-between items-center mb-4 pb-3 border-b">
-                        <h3 class="text-lg font-semibold">
-                            <i class="fas fa-check-circle text-green-600"></i>
-                            Surat Kelulusan Dijana
-                        </h3>
-                        <button id="close-letters" class="text-gray-500 hover:text-gray-700">
-                            <i class="fas fa-times text-xl"></i>
-                        </button>
-                    </div>
-                    <div class="mb-4">
-                        <p class="text-sm text-gray-600 mb-3">
-                            ${letters.length} surat kelulusan telah berjaya dijana. Klik pada pautan untuk melihat surat.
-                        </p>
-                        ${html}
-                    </div>
-                    <div class="pt-3 border-t text-right">
-                        <button id="close-letters-btn" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
-                            Tutup
-                        </button>
-                    </div>
-                </div>
-            </div>
-        `;
-
-        document.body.insertAdjacentHTML('beforeend', modalHTML);
-
-        document.getElementById('close-letters').onclick = () => {
-            document.getElementById('letters-modal').remove();
-        };
-        document.getElementById('close-letters-btn').onclick = () => {
-            document.getElementById('letters-modal').remove();
-        };
-    }
-
+    
 };
 
 // Auto init
 document.addEventListener("DOMContentLoaded", () => TPUI.init());
+
 
 
 
