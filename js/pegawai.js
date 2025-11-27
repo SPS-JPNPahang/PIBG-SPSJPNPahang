@@ -6,11 +6,11 @@
 const PegawaiUI = {
 
   init: function () {
-    const role = Util.getRole();
-    if (role === 'pegawai' && document.getElementById('pegawai-dashboard')) {
-      document.getElementById('pegawai-login').classList.add('hidden');
-      document.getElementById('pegawai-dashboard').classList.remove('hidden');
-      this.loadDashboard();
+    //const role = Util.getRole();
+    //if (role === 'pegawai' && document.getElementById('pegawai-dashboard')) {
+    //  document.getElementById('pegawai-login').classList.add('hidden');
+    // document.getElementById('pegawai-dashboard').classList.remove('hidden');
+    // this.loadDashboard();
     }
   },
 
@@ -492,3 +492,4 @@ const PegawaiUI = {
 
 // auto init
 document.addEventListener('DOMContentLoaded', () => PegawaiUI.init());
+
