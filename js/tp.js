@@ -61,10 +61,6 @@ const TPUI = {
                         <i class="fas fa-check mr-1"></i>
                         Luluskan Terpilih
                     </button>
-                    <button id="tp-generate" class="ml-2 px-3 py-1 bg-purple-600 text-white rounded hover:bg-purple-700">
-                        <i class="fas fa-file-pdf mr-1"></i>
-                        Jana Surat Terpilih
-                    </button>
                 </div>
 
                 <!-- TABLE -->
@@ -91,7 +87,6 @@ const TPUI = {
         document.getElementById('tp-logout').onclick = () => AuthUI.logout();
         document.getElementById('tp-select-all').onclick = () => this.selectAll();
         document.getElementById('tp-approve').onclick = () => this.approveSelected();
-        document.getElementById('tp-generate').onclick = () => this.generateSelected();
         document.getElementById('tp-save-config').onclick = () => this.saveConfig();
         
         // Load data
@@ -342,5 +337,6 @@ const TPUI = {
 
 // Auto init
 document.addEventListener("DOMContentLoaded", () => TPUI.init());
+
 
 
