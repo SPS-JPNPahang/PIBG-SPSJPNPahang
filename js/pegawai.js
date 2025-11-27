@@ -382,7 +382,7 @@ const PegawaiUI = {
 
   openQueryModal: function (reqId) {
     const modalHTML = `
-      <div id="query-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+      <div id="query-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4" style="z-index: 99999;">
         <div class="bg-white rounded-lg shadow-lg max-w-lg w-full p-6">
           <div class="flex justify-between items-center mb-4 pb-3 border-b">
             <h3 class="text-lg font-semibold">Tandakan Query</h3>
@@ -455,7 +455,7 @@ const PegawaiUI = {
 
   openSahkanModal: function (reqId) {
     const modalHTML = `
-      <div id="sahkan-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+      <div id="sahkan-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4" style="z-index: 99999;">
         <div class="bg-white rounded-lg shadow-lg max-w-lg w-full p-6">
           <div class="flex justify-between items-center mb-4 pb-3 border-b">
             <h3 class="text-lg font-semibold">Sahkan Permohonan</h3>
@@ -553,6 +553,7 @@ const PegawaiUI = {
 
 // auto init
 document.addEventListener('DOMContentLoaded', () => PegawaiUI.init());
+
 
 
 
