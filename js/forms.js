@@ -352,7 +352,7 @@ const FormUI = {
     return notify.error("Sila lengkapkan semua ruangan yang bertanda bintang (*)");
     }
     if (!fSurat || !fMinit || !fKertas) {
-        rreturn notify.error("Ketiga-tiga dokumen PDF (Surat, Minit, Kertas Cadangan) mesti dimuat naik");
+        return notify.error("Ketiga-tiga dokumen PDF (Surat, Minit, Kertas Cadangan) mesti dimuat naik");
     }
 
     const loadingEl = document.getElementById('loading-overlay');
@@ -525,6 +525,7 @@ const FormUI = {
 
 // Auto initialize
 document.addEventListener("DOMContentLoaded", () => FormUI.init());
+
 
 
 
