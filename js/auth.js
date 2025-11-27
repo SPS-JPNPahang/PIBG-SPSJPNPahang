@@ -1,96 +1,138 @@
 // auth.js
 // --------------------------------------------------
-// Login Pegawai & Login TP menggunakan Apps Script
+// Unified Login - Auto-detect Pegawai or TP role
 // --------------------------------------------------
 
 const AuthUI = {
 
     init: function () {
-        this.renderPegawaiLogin();
-        this.renderTPLogin();
+        this.renderUnifiedLogin();
     },
 
     // ------------------------------
-    // UI → Pegawai Login
+    // UI → Unified Login (Pegawai & TP)
     // ------------------------------
-    renderPegawaiLogin: function () {
-        const el = document.getElementById("pegawai-login");
-        el.innerHTML = `
-            <div class="p-4 bg-white rounded shadow max-w-sm">
-                <h3 class="font-semibold mb-2">Log Masuk Pegawai</h3>
-                <input id="peg-pass" type="password" placeholder="Kata Laluan Pegawai"
-                    class="border rounded px-3 py-2 w-full mb-3" />
+    renderUnifiedLogin: function () {
+        // Render for Pegawai tab
+        const pegawaiEl = document.getElementById("pegawai-login");
+        if (pegawaiEl) {
+            pegawaiEl.innerHTML = this.getLoginHTML("Portal Pegawai");
+            this.attachLoginHandler("pegawai-login", "pegawai-dashboard");
+        }
 
-                <button id="btn-peg-login"
-                    class="w-full bg-blue-600 text-white px-4 py-2 rounded">
-                    Log Masuk
-                </button>
-            </div>
-        `;
-
-        document.getElementById("btn-peg-login").onclick = async () => {
-            const password = document.getElementById("peg-pass").value.trim();
-
-            const res = await Util.postJSON({
-                type: "login",
-                payload: { role:"pegawai", password }
-            });
-
-            if (!res.ok) return Util.toast(res.message, "error");
-
-            Util.saveToken(res.token, "pegawai");
-
-            document.getElementById("pegawai-login").classList.add("hidden");
-            document.getElementById("pegawai-dashboard").classList.remove("hidden");
-
-            Util.toast("Selamat datang, Pegawai.", "success");
-
-            // Muatkan dashboard
-            if (typeof PegawaiUI !== "undefined") {
-                PegawaiUI.loadDashboard();
-            }
-        };
+        // Render for TP tab
+        const tpEl = document.getElementById("tp-login");
+        if (tpEl) {
+            tpEl.innerHTML = this.getLoginHTML("Portal Timbalan Pengarah");
+            this.attachLoginHandler("tp-login", "tp-dashboard");
+        }
     },
 
     // ------------------------------
-    // UI → TP Login
+    // HTML Template for Login Form
     // ------------------------------
-    renderTPLogin: function () {
-        const el = document.getElementById("tp-login");
-        el.innerHTML = `
+    getLoginHTML: function (title) {
+        return `
             <div class="p-4 bg-white rounded shadow max-w-sm">
-                <h3 class="font-semibold mb-2">Log Masuk Timbalan Pengarah</h3>
-                <input id="tp-pass" type="password" placeholder="Kata Laluan TP"
-                    class="border rounded px-3 py-2 w-full mb-3" />
+                <h3 class="font-semibold mb-3 text-lg">${title}</h3>
+                
+                <div class="mb-3">
+                    <label class="block text-sm font-medium mb-1">Kata Laluan</label>
+                    <input type="password" placeholder="Masukkan kata laluan"
+                        class="login-password border rounded px-3 py-2 w-full" />
+                </div>
 
-                <button id="btn-tp-login"
-                    class="w-full bg-purple-700 text-white px-4 py-2 rounded">
-                    Log Masuk
+                <button class="login-btn w-full bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition">
+                    <i class="fas fa-sign-in-alt"></i> Log Masuk
                 </button>
+
+                <div class="mt-3 text-xs text-gray-600">
+                    <i class="fas fa-info-circle"></i> 
+                    Sistem akan mengenal pasti role anda secara automatik.
+                </div>
             </div>
         `;
+    },
 
-        document.getElementById("btn-tp-login").onclick = async () => {
-            const password = document.getElementById("tp-pass").value.trim();
+    // ------------------------------
+    // Attach Login Handler
+    // ------------------------------
+    attachLoginHandler: function (loginContainerId, dashboardContainerId) {
+        const container = document.getElementById(loginContainerId);
+        if (!container) return;
 
-            const res = await Util.postJSON({
+        const passwordInput = container.querySelector(".login-password");
+        const loginBtn = container.querySelector(".login-btn");
+
+        if (!passwordInput || !loginBtn) return;
+
+        // Click handler
+        loginBtn.onclick = () => this.handleLogin(passwordInput, loginContainerId, dashboardContainerId);
+
+        // Enter key handler
+        passwordInput.addEventListener("keypress", (e) => {
+            if (e.key === "Enter") {
+                this.handleLogin(passwordInput, loginContainerId, dashboardContainerId);
+            }
+        });
+    },
+
+    // ------------------------------
+    // Handle Login Logic
+    // ------------------------------
+    handleLogin: async function (passwordInput, loginContainerId, dashboardContainerId) {
+        const password = passwordInput.value.trim();
+
+        if (!password) {
+            return notify.warning("Sila masukkan kata laluan.");
+        }
+
+        notify.loading("Mengesahkan...");
+
+        // Try Pegawai first
+        let res = await Util.postJSON({
+            type: "login",
+            payload: { role: "pegawai", password }
+        });
+
+        let detectedRole = null;
+
+        if (res.ok) {
+            detectedRole = "pegawai";
+        } else {
+            // Try TP
+            res = await Util.postJSON({
                 type: "login",
-                payload: { role:"tp", password }
+                payload: { role: "tp", password }
             });
 
-            if (!res.ok) return Util.toast(res.message, "error");
-
-            Util.saveToken(res.token, "tp");
-
-            document.getElementById("tp-login").classList.add("hidden");
-            document.getElementById("tp-dashboard").classList.remove("hidden");
-
-            Util.toast("Selamat datang, TP.", "success");
-
-            if (typeof TPUI !== "undefined") {
-                TPUI.loadDashboard();
+            if (res.ok) {
+                detectedRole = "tp";
             }
-        };
+        }
+
+        notify.dismissLoading();
+
+        // Login failed for both roles
+        if (!detectedRole) {
+            return notify.error("Kata laluan tidak sah.");
+        }
+
+        // Login success
+        Util.saveToken(res.token, detectedRole);
+
+        document.getElementById(loginContainerId).classList.add("hidden");
+        document.getElementById(dashboardContainerId).classList.remove("hidden");
+
+        const roleTitle = detectedRole === "pegawai" ? "Pegawai Penyemak" : "Timbalan Pengarah";
+        notify.success(`Selamat datang, ${roleTitle}!`);
+
+        // Load appropriate dashboard
+        if (detectedRole === "pegawai" && typeof PegawaiUI !== "undefined") {
+            PegawaiUI.loadDashboard();
+        } else if (detectedRole === "tp" && typeof TPUI !== "undefined") {
+            TPUI.loadDashboard();
+        }
     },
 
     // ------------------------------
@@ -98,8 +140,8 @@ const AuthUI = {
     // ------------------------------
     logout: function () {
         Util.clearToken();
-        Util.toast("Anda telah log keluar.", "info");
-        location.reload();
+        notify.info("Anda telah log keluar.");
+        setTimeout(() => location.reload(), 1000);
     }
 };
 
