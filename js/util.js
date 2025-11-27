@@ -110,6 +110,93 @@ const Util = {
         if (!timestamp) return '-';
         const d = new Date(timestamp);
         return `${Util.formatDateDisplay(Util.formatDate(d))} ${d.getHours().toString().padStart(2, '0')}:${d.getMinutes().toString().padStart(2, '0')}`;
+    },
+
+    // ---------- DATE & TIME FORMATTING (Malay Standard) ----------
+    formatMalayDate: function(dateInput) {
+        if (!dateInput) return '';
+        try {
+            let d;
+            if (dateInput instanceof Date) {
+                d = dateInput;
+            } else if (typeof dateInput === 'string') {
+                const cleanDate = dateInput.split('T')[0];
+                d = new Date(cleanDate + 'T00:00:00');
+            } else {
+                return '';
+            }
+            if (isNaN(d.getTime())) return '';
+            const months = ['Januari', 'Februari', 'Mac', 'April', 'Mei', 'Jun', 
+                          'Julai', 'Ogos', 'September', 'Oktober', 'November', 'Disember'];
+            const day = d.getDate();
+            const month = months[d.getMonth()];
+            const year = d.getFullYear();
+            return day + ' ' + month + ' ' + year;
+        } catch (e) {
+            return '';
+        }
+    },
+    
+    formatMalayDay: function(dateInput) {
+        if (!dateInput) return '';
+        try {
+            let d;
+            if (dateInput instanceof Date) {
+                d = dateInput;
+            } else if (typeof dateInput === 'string') {
+                const cleanDate = dateInput.split('T')[0];
+                d = new Date(cleanDate + 'T00:00:00');
+            } else {
+                return '';
+            }
+            if (isNaN(d.getTime())) return '';
+            const days = ['Ahad', 'Isnin', 'Selasa', 'Rabu', 'Khamis', 'Jumaat', 'Sabtu'];
+            return days[d.getDay()];
+        } catch (e) {
+            return '';
+        }
+    },
+    
+    formatMalayTime: function(timeInput) {
+        if (!timeInput) return '';
+        try {
+            let hours, minutes;
+            if (timeInput instanceof Date) {
+                hours = timeInput.getHours();
+                minutes = timeInput.getMinutes();
+            } else if (typeof timeInput === 'string') {
+                const parts = timeInput.split(':');
+                hours = parseInt(parts[0]);
+                minutes = parts[1] || '00';
+            } else {
+                return '';
+            }
+            let period = 'Pagi';
+            if (hours >= 12 && hours < 15) {
+                period = 'Tengah Hari';
+            } else if (hours >= 15 && hours < 19) {
+                period = 'Petang';
+            } else if (hours >= 19 || hours < 6) {
+                period = 'Malam';
+            }
+            const displayHours = hours > 12 ? hours - 12 : (hours === 0 ? 12 : hours);
+            return displayHours + '.' + minutes + ' ' + period;
+        } catch (e) {
+            return '';
+        }
+    },
+    
+    formatMalayDateTime: function(dateTimeInput) {
+        if (!dateTimeInput) return '';
+        try {
+            const d = new Date(dateTimeInput);
+            if (isNaN(d.getTime())) return '';
+            const datePart = this.formatMalayDate(d);
+            const timePart = this.formatMalayTime(d);
+            return datePart + ', ' + timePart;
+        } catch (e) {
+            return '';
+        }
     }
 };
 
@@ -341,124 +428,7 @@ function showNotification(type, message) {
         notify.info(message);
     }
 }
-// ========================================
-    // DATE & TIME FORMATTING (Malay Standard)
-    // ========================================
-    formatMalayDate: function(dateInput) {
-        // Accept: Date object, ISO string, or YYYY-MM-DD string
-        // Output: "27 November 2025"
-        
-        if (!dateInput) return '';
-        
-        try {
-            let d;
-            if (dateInput instanceof Date) {
-                d = dateInput;
-            } else if (typeof dateInput === 'string') {
-                // Remove timezone info and create clean date
-                const cleanDate = dateInput.split('T')[0]; // Get YYYY-MM-DD only
-                d = new Date(cleanDate + 'T00:00:00');
-            } else {
-                return '';
-            }
-            
-            if (isNaN(d.getTime())) return '';
-            
-            const months = ['Januari', 'Februari', 'Mac', 'April', 'Mei', 'Jun', 
-                          'Julai', 'Ogos', 'September', 'Oktober', 'November', 'Disember'];
-            
-            const day = d.getDate();
-            const month = months[d.getMonth()];
-            const year = d.getFullYear();
-            
-            return day + ' ' + month + ' ' + year;
-        } catch (e) {
-            return '';
-        }
-    },
-    
-    formatMalayDay: function(dateInput) {
-        // Output: "Ahad", "Isnin", etc.
-        
-        if (!dateInput) return '';
-        
-        try {
-            let d;
-            if (dateInput instanceof Date) {
-                d = dateInput;
-            } else if (typeof dateInput === 'string') {
-                const cleanDate = dateInput.split('T')[0];
-                d = new Date(cleanDate + 'T00:00:00');
-            } else {
-                return '';
-            }
-            
-            if (isNaN(d.getTime())) return '';
-            
-            const days = ['Ahad', 'Isnin', 'Selasa', 'Rabu', 'Khamis', 'Jumaat', 'Sabtu'];
-            return days[d.getDay()];
-        } catch (e) {
-            return '';
-        }
-    },
-    
-    formatMalayTime: function(timeInput) {
-        // Accept: "14:30" or "14:30:00" or Date object
-        // Output: "2.30 Petang"
-        
-        if (!timeInput) return '';
-        
-        try {
-            let hours, minutes;
-            
-            if (timeInput instanceof Date) {
-                hours = timeInput.getHours();
-                minutes = timeInput.getMinutes();
-            } else if (typeof timeInput === 'string') {
-                const parts = timeInput.split(':');
-                hours = parseInt(parts[0]);
-                minutes = parts[1] || '00';
-            } else {
-                return '';
-            }
-            
-            let period = 'Pagi';
-            if (hours >= 12 && hours < 15) {
-                period = 'Tengah Hari';
-            } else if (hours >= 15 && hours < 19) {
-                period = 'Petang';
-            } else if (hours >= 19 || hours < 6) {
-                period = 'Malam';
-            }
-            
-            const displayHours = hours > 12 ? hours - 12 : (hours === 0 ? 12 : hours);
-            return displayHours + '.' + minutes + ' ' + period;
-        } catch (e) {
-            return '';
-        }
-    },
-    
-    formatMalayDateTime: function(dateTimeInput) {
-        // Accept: ISO datetime string
-        // Output: "27 November 2025, 2.30 Petang"
-        
-        if (!dateTimeInput) return '';
-        
-        try {
-            const d = new Date(dateTimeInput);
-            if (isNaN(d.getTime())) return '';
-            
-            const datePart = this.formatMalayDate(d);
-            const timePart = this.formatMalayTime(d);
-            
-            return datePart + ', ' + timePart;
-        } catch (e) {
-            return '';
-        }
-    }
-};
+
 // Expose to global
 window.Util = Util;
 window.notify = notify;
-
-
