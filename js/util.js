@@ -456,8 +456,9 @@ function showNotification(type, message) {
             return '';
         }
     }
-
+};
 // Expose to global
 window.Util = Util;
 window.notify = notify;
+
 
