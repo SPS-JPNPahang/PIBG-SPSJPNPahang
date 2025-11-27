@@ -130,6 +130,22 @@ const FormUI = {
                                 ⚠️ Hanya Sabtu (minggu genap) atau Ahad
                             </p>
                         </div>
+                        <!-- BMAT (Bilangan MAT) -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">
+                                Bilangan Mesyuarat Agung Tahunan (BMAT) <span class="text-red-500">*</span>
+                            </label>
+                            <input 
+                                type="number" 
+                                id="bmat" 
+                                min="1" 
+                                max="999"
+                                placeholder="Contoh: 45"
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                required
+                            >
+                            <p class="mt-1 text-sm text-gray-500">Masukkan nombor sahaja (cth: 45)</p>
+                        </div>
                         <div>
                             <label class="block text-sm font-medium mb-1">Masa MAT <span class="text-red-500">*</span></label>
                             <input id="f-masamat" type="time" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-purple-500">
@@ -367,6 +383,7 @@ const FormUI = {
    submitForm: async function () {
     const kod = document.getElementById("f-kod").value.trim();
     const email = document.getElementById("f-email").value.trim();
+    const bmat = document.getElementById("bmat").value.trim();
     const namaSekolah = document.getElementById("f-nama-sekolah").value.trim();
     const kategori = document.getElementById("f-kategori").value.trim();
     const daerah = document.getElementById("f-daerah").value.trim();
@@ -386,8 +403,13 @@ const FormUI = {
     const fMinit = document.getElementById("f-minit").files[0];
     const fKertas = document.getElementById("f-kertas").files[0];
 
-    if (!kod || !email || !namaSekolah || !tahun || !rujukan || !tarikhSurat || !tarikhMAT || !masaMAT || !tempatMAT || !perasmi || !jawatan || !penghubung || !telefon) {
+    if (!kod || !email || !namaSekolah || !bmat || !tahun || !rujukan || !tarikhSurat || !tarikhMAT || !masaMAT || !tempatMAT || !perasmi || !jawatan || !penghubung || !telefon) {
     return notify.error("Sila lengkapkan semua ruangan yang bertanda bintang (*)");
+    }
+    
+    // Validate BMAT number
+    if (!bmat || parseInt(bmat) < 1) {
+        return notify.error("Sila masukkan Bilangan MAT (nombor positif)");
     }
     if (!fSurat || !fMinit || !fKertas) {
         return notify.error("Ketiga-tiga dokumen PDF (Surat, Minit, Kertas Cadangan) mesti dimuat naik");
@@ -439,7 +461,8 @@ const FormUI = {
                 kategori: kategori, 
                 daerah: daerah,
                 poskod: poskod,
-                tahun: tahun, 
+                tahun: tahun,
+                bmat: bmat,
                 schoolEmail: email, 
                 rujukanSurat: rujukan, 
                 tarikhRujukanSurat: tarikhSurat, 
@@ -543,8 +566,8 @@ const FormUI = {
 resetAllFields: function() {
     // Reset all input fields
     const inputs = ['f-kod', 'f-email', 'f-nama-sekolah', 'f-kategori', 'f-daerah', 'f-poskod', 
-                    'f-tahun', 'f-rujukan', 'f-tarikhsurat', 'f-tarikhmat', 'f-masamat', 
-                    'f-tempatmat', 'f-perasmi', 'f-jawatan', 'f-penghubung', 'f-telefon'];
+                'f-tahun', 'bmat', 'f-rujukan', 'f-tarikhsurat', 'f-tarikhmat', 'f-masamat', 
+                'f-tempatmat', 'f-perasmi', 'f-jawatan', 'f-penghubung', 'f-telefon'];
     
     inputs.forEach(id => {
         const el = document.getElementById(id);
@@ -569,10 +592,3 @@ resetAllFields: function() {
 
 // Auto initialize
 document.addEventListener("DOMContentLoaded", () => FormUI.init());
-
-
-
-
-
-
-
