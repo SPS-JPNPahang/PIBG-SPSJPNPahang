@@ -259,7 +259,7 @@ const PegawaiUI = {
     const data = res.data;
 
     const modalHTML = `
-      <div id="detail-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+      <div id="detail-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4" style="z-index: 9999;">
         <div class="bg-white rounded-lg shadow-lg max-w-3xl w-full p-6 max-h-screen overflow-y-auto">
           <div class="flex justify-between items-center mb-4 pb-3 border-b">
             <h3 class="text-lg font-semibold">Butiran Permohonan</h3>
@@ -326,11 +326,7 @@ const PegawaiUI = {
           </div>
 
           <form id="query-form">
-            <div class="mb-3">
-              <label class="block text-sm font-medium mb-1">Kod Query (Optional)</label>
-              <input type="text" id="query-kod" class="w-full border rounded px-3 py-2" placeholder="Contoh: Q001">
-            </div>
-
+          
             <div class="mb-4">
               <label class="block text-sm font-medium mb-1">Catatan Query <span class="text-red-600">*</span></label>
               <textarea id="query-note" rows="4" required class="w-full border rounded px-3 py-2" placeholder="Nyatakan dengan jelas apa yang perlu diperbetulkan oleh sekolah..."></textarea>
@@ -362,9 +358,8 @@ const PegawaiUI = {
     };
   },
 
-  sendQuery: async function (reqId) {
+ sendQuery: async function (reqId) {
     const note = document.getElementById('query-note').value.trim();
-    const kodQuery = document.getElementById('query-kod').value.trim();
 
     if (!note) {
       return notify.warning('Sila masukkan catatan query.');
@@ -378,7 +373,7 @@ const PegawaiUI = {
     const res = await Util.postJSON({
       type: 'query',
       authToken: token,
-      payload: { reqId, note, kodQuery }
+      payload: { reqId, note }
     });
 
     notify.dismissLoading();
@@ -492,5 +487,6 @@ const PegawaiUI = {
 
 // auto init
 document.addEventListener('DOMContentLoaded', () => PegawaiUI.init());
+
 
 
