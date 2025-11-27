@@ -139,11 +139,27 @@ const AuthUI = {
     // Logout (pegawai / TP)
     // ------------------------------
     logout: function () {
+        // Clear tokens
         Util.clearToken();
+        
+        // Clear session storage completely
+        sessionStorage.clear();
+        
+        // Clear any cached data
+        if (window.localStorage) {
+            localStorage.removeItem(CONFIG.TOKEN_KEY);
+            localStorage.removeItem(CONFIG.ROLE_KEY);
+        }
+        
         notify.info("Anda telah log keluar.");
-        setTimeout(() => location.reload(), 1000);
+        
+        // Force reload after clearing
+        setTimeout(() => {
+            location.reload(true); // true = force reload from server
+        }, 1000);
     }
 };
 
 // Auto initialize
 document.addEventListener("DOMContentLoaded", () => AuthUI.init());
+
