@@ -11,7 +11,7 @@ const PegawaiUI = {
     //  document.getElementById('pegawai-login').classList.add('hidden');
     // document.getElementById('pegawai-dashboard').classList.remove('hidden');
     // this.loadDashboard();
-    }
+   // }
   },
 
   loadDashboard: async function () {
@@ -492,4 +492,5 @@ const PegawaiUI = {
 
 // auto init
 document.addEventListener('DOMContentLoaded', () => PegawaiUI.init());
+
 
