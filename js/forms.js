@@ -520,13 +520,9 @@ const FormUI = {
                 </div>
                 
                 <div class="flex gap-3 justify-center">
-                    <button onclick="window.location.reload()" class="px-6 py-3 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700 transition flex items-center gap-2">
-                        <i class="fas fa-plus-circle"></i>
-                        Permohonan Baru
-                    </button>
-                    <button onclick="document.querySelector('[data-tab=semak]').click()" class="px-6 py-3 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition flex items-center gap-2">
-                        <i class="fas fa-search"></i>
-                        Semak Status
+                    <button onclick="window.print()" class="px-6 py-3 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition flex items-center gap-2">
+                        <i class="fas fa-print"></i>
+                        Cetak / Simpan PDF
                     </button>
                 </div>
             </div>
@@ -573,6 +569,7 @@ resetAllFields: function() {
 
 // Auto initialize
 document.addEventListener("DOMContentLoaded", () => FormUI.init());
+
 
 
 
