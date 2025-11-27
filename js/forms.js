@@ -257,6 +257,8 @@ const FormUI = {
 
     setupDateRestrictions: async function() {
         let schoolStartDate = null;
+        
+        // Get school start date from config
         try {
             const res = await Util.postJSON({
                 type: 'getConfig',
@@ -265,25 +267,34 @@ const FormUI = {
             
             if (res.ok && res.value) {
                 schoolStartDate = new Date(res.value + 'T00:00:00');
+                console.log('School start date loaded:', res.value);
             }
         } catch (err) {
             console.error('Config load error:', err);
         }
         
         const today = new Date();
-        today.setHours(0,0,0,0);
+        today.setHours(0, 0, 0, 0);
         
+        // MINIMUM: 30 days from TODAY (not from submission date)
         const minDate = new Date(today);
         minDate.setDate(minDate.getDate() + 30);
         
+        // MAXIMUM: 90 days from school start date (if configured)
         let maxDate = new Date(today);
-        maxDate.setDate(maxDate.getDate() + 120);
+        maxDate.setMonth(maxDate.getMonth() + 6); // Default 6 months if no config
         
         if (schoolStartDate && !isNaN(schoolStartDate.getTime())) {
             const max90 = new Date(schoolStartDate);
             max90.setDate(max90.getDate() + 90);
             maxDate = max90;
+            console.log('Max date (90 days from school start):', maxDate.toISOString().split('T')[0]);
         }
+        
+        console.log('Date restrictions:', {
+            min: minDate.toISOString().split('T')[0],
+            max: maxDate.toISOString().split('T')[0]
+        });
         
         flatpickr("#f-tarikhmat", {
             minDate: minDate,
@@ -304,24 +315,51 @@ const FormUI = {
             
             disable: [
                 function(date) {
-                    const day = date.getDay();
-                    if (day >= 1 && day <= 5) return true;
-                    if (day === 6) {
-                        const d = date.getDate();
-                        const first = new Date(date.getFullYear(), date.getMonth(), 1).getDay();
-                        const week = Math.ceil((d + first) / 7);
-                        if (![2, 4].includes(week)) return true;
+                    const day = date.getDay(); // 0=Ahad, 6=Sabtu
+                    
+                    // Block Monday-Friday (1-5)
+                    if (day >= 1 && day <= 5) {
+                        return true; // DISABLE weekdays
                     }
+                    
+                    // Allow Sunday (0)
+                    if (day === 0) {
+                        return false; // ENABLE Ahad
+                    }
+                    
+                    // Saturday (6) - only allow EVEN weeks (2nd, 4th)
+                    if (day === 6) {
+                        const dateNum = date.getDate();
+                        const firstDayOfMonth = new Date(date.getFullYear(), date.getMonth(), 1).getDay();
+                        const weekNumber = Math.ceil((dateNum + firstDayOfMonth) / 7);
+                        
+                        // Allow week 2 and 4 only (EVEN weeks)
+                        if ([2, 4].includes(weekNumber)) {
+                            return false; // ENABLE Sabtu minggu genap
+                        } else {
+                            return true; // DISABLE Sabtu minggu ganjil
+                        }
+                    }
+                    
                     return false;
                 }
             ],
             
             onChange: function(selectedDates, dateStr) {
                 if (selectedDates.length > 0) {
-                    const day = selectedDates[0].getDay();
-                    const nama = ['Ahad','Isnin','Selasa','Rabu','Khamis','Jumaat','Sabtu'][day];
-                    Util.toast('✓ ' + nama + ', ' + dateStr, 'success', 2000);
+                    const selectedDate = selectedDates[0];
+                    const day = selectedDate.getDay();
+                    const dayName = ['Ahad', 'Isnin', 'Selasa', 'Rabu', 'Khamis', 'Jumaat', 'Sabtu'][day];
+                    
+                    // Calculate days from today
+                    const daysFromToday = Math.ceil((selectedDate - today) / (1000 * 60 * 60 * 24));
+                    
+                    notify.success(`✓ ${dayName}, ${dateStr} (${daysFromToday} hari dari sekarang)`, { timeout: 3000 });
                 }
+            },
+            
+            onReady: function(selectedDates, dateStr, instance) {
+                console.log('Flatpickr ready. Min:', instance.config.minDate, 'Max:', instance.config.maxDate);
             }
         });
     },
@@ -494,23 +532,8 @@ const FormUI = {
             </div>
         `;
 
-        document.getElementById("f-nama-sekolah").value = '';
-        document.getElementById("f-kategori").value = '';
-        document.getElementById("f-daerah").value = '';
-        document.getElementById("f-tahun").value = '';
-        document.getElementById("f-rujukan").value = '';
-        document.getElementById("f-tarikhsurat").value = '';
-        document.getElementById("f-tarikhmat").value = '';
-        document.getElementById("f-masamat").value = '';
-        document.getElementById("f-tempatmat").value = '';
-        document.getElementById("f-perasmi").value = '';
-        document.getElementById("f-jawatan").value = '';
-        document.getElementById("f-penghubung").value = '';
-        document.getElementById("f-telefon").value = '';
-        document.getElementById("f-surat").value = '';
-        document.getElementById("f-minit").value = '';
-        document.getElementById("f-kertas").value = '';
-        document.getElementById("f-poskod").value = '';
+        // Reset entire form
+        this.resetAllFields();
 
         window.scrollTo({top: 0, behavior: 'smooth'});
         
@@ -519,12 +542,38 @@ const FormUI = {
     notify.dismissLoading();
     notify.error("Ralat berlaku: " + (error && error.message ? error.message : String(error)));
     }
+},
+
+resetAllFields: function() {
+    // Reset all input fields
+    const inputs = ['f-kod', 'f-email', 'f-nama-sekolah', 'f-kategori', 'f-daerah', 'f-poskod', 
+                    'f-tahun', 'f-rujukan', 'f-tarikhsurat', 'f-tarikhmat', 'f-masamat', 
+                    'f-tempatmat', 'f-perasmi', 'f-jawatan', 'f-penghubung', 'f-telefon'];
+    
+    inputs.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.value = '';
+    });
+    
+    // Reset file inputs
+    const fileInputs = ['f-surat', 'f-minit', 'f-kertas'];
+    fileInputs.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.value = '';
+    });
+    
+    // Reset flatpickr (date picker)
+    const dateInput = document.getElementById('f-tarikhmat');
+    if (dateInput && dateInput._flatpickr) {
+        dateInput._flatpickr.clear();
+    }
 }
 
 };
 
 // Auto initialize
 document.addEventListener("DOMContentLoaded", () => FormUI.init());
+
 
 
 
