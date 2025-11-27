@@ -256,49 +256,115 @@ const PegawaiUI = {
       return notify.error(res.message || 'Gagal panggil server');
     }
 
-    const data = res.data;
+    const app = res.data;
 
     const modalHTML = `
       <div id="detail-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4" style="z-index: 9999;">
-        <div class="bg-white rounded-lg shadow-lg max-w-3xl w-full p-6 max-h-screen overflow-y-auto">
-          <div class="flex justify-between items-center mb-4 pb-3 border-b">
-            <h3 class="text-lg font-semibold">Butiran Permohonan</h3>
-            <button id="close-detail" class="text-gray-500 hover:text-gray-700">
-              <i class="fas fa-times text-xl"></i>
-            </button>
-          </div>
-
-          <div class="grid grid-cols-2 gap-3 text-sm mb-4">
-            <div><span class="text-gray-600">ReqID:</span><div class="font-medium">${data.ReqID}</div></div>
-            <div><span class="text-gray-600">Status:</span><div class="font-medium">${data.Status}</div></div>
-            <div><span class="text-gray-600">Kod Sekolah:</span><div class="font-medium">${data.KodSekolah}</div></div>
-            <div><span class="text-gray-600">Nama Sekolah:</span><div class="font-medium">${data.NamaSekolah}</div></div>
-            <div><span class="text-gray-600">Daerah:</span><div class="font-medium">${data.Daerah}</div></div>
-            <div><span class="text-gray-600">Tarikh MAT:</span><div class="font-medium">${data.TarikhMAT}</div></div>
-            <div><span class="text-gray-600">Masa:</span><div class="font-medium">${data.MasaMAT}</div></div>
-            <div><span class="text-gray-600">Tempat:</span><div class="font-medium">${data.TempatMAT}</div></div>
-            <div class="col-span-2"><span class="text-gray-600">Nama Perasmi:</span><div class="font-medium">${data.NamaPerasmi}</div></div>
-            <div class="col-span-2"><span class="text-gray-600">Jawatan Perasmi:</span><div class="font-medium">${data.JawatanPerasmi}</div></div>
-          </div>
-
-          <div class="mt-4 pt-3 border-t">
-            <h4 class="font-semibold mb-2">Dokumen</h4>
-            <div class="space-y-1">
-              ${data.FileSuratPermohonan ? `<div><a href="${data.FileSuratPermohonan}" target="_blank" class="text-blue-600 hover:underline"><i class="fas fa-file-pdf"></i> Surat Permohonan</a></div>` : ''}
-              ${data.FileMinitMesyJK ? `<div><a href="${data.FileMinitMesyJK}" target="_blank" class="text-blue-600 hover:underline"><i class="fas fa-file-pdf"></i> Minit Mesyuarat JK</a></div>` : ''}
-              ${data.FileKertasCadangan ? `<div><a href="${data.FileKertasCadangan}" target="_blank" class="text-blue-600 hover:underline"><i class="fas fa-file-pdf"></i> Kertas Cadangan</a></div>` : ''}
+        <div class="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+          <div class="p-6">
+            <div class="flex justify-between items-center mb-4 pb-3 border-b">
+              <h3 class="text-lg font-semibold">Butiran Permohonan</h3>
+              <button id="close-detail" class="text-gray-500 hover:text-gray-700">
+                <i class="fas fa-times text-xl"></i>
+              </button>
             </div>
-          </div>
 
-          ${data.Status === 'Query' && data.CatatanQuery ? `
+            <!-- Maklumat Asas -->
+            <div class="grid grid-cols-2 gap-4 mb-4">
+              <div>
+                <p class="text-sm text-gray-600">ReqID</p>
+                <p class="font-semibold">${app.ReqID || '-'}</p>
+              </div>
+              <div>
+                <p class="text-sm text-gray-600">Status</p>
+                <p class="font-semibold">${app.Status || '-'}</p>
+              </div>
+              <div>
+                <p class="text-sm text-gray-600">Kod Sekolah</p>
+                <p class="font-semibold">${app.KodSekolah || '-'}</p>
+              </div>
+              <div>
+                <p class="text-sm text-gray-600">Nama Sekolah</p>
+                <p class="font-semibold">${app.NamaSekolah || '-'}</p>
+              </div>
+              <div>
+                <p class="text-sm text-gray-600">Daerah</p>
+                <p class="font-semibold">${app.Daerah || '-'}</p>
+              </div>
+              <div>
+                <p class="text-sm text-gray-600">Kategori</p>
+                <p class="font-semibold">${app.Kategori || '-'}</p>
+              </div>
+            </div>
+
+            <!-- Maklumat MAT dengan FORMAT MALAY -->
+            <div class="grid grid-cols-2 gap-4 mb-4 p-4 bg-blue-50 rounded-lg">
+              <div>
+                <p class="text-sm text-gray-600">Tarikh Permohonan</p>
+                <p class="font-semibold">${Util.formatMalayDate(app.TarikhPermohonan)}</p>
+              </div>
+              <div>
+                <p class="text-sm text-gray-600">Tarikh MAT</p>
+                <p class="font-semibold">${Util.formatMalayDate(app.TarikhMAT)} (${Util.formatMalayDay(app.TarikhMAT)})</p>
+              </div>
+              <div>
+                <p class="text-sm text-gray-600">Masa MAT</p>
+                <p class="font-semibold">${Util.formatMalayTime(app.MasaMAT)}</p>
+              </div>
+              <div>
+                <p class="text-sm text-gray-600">Tempat MAT</p>
+                <p class="font-semibold">${app.TempatMAT || '-'}</p>
+              </div>
+            </div>
+
+            <!-- Maklumat Perasmi -->
+            <div class="grid grid-cols-2 gap-4 mb-4">
+              <div class="col-span-2">
+                <p class="text-sm text-gray-600">Nama Perasmi</p>
+                <p class="font-semibold">${app.NamaPerasmi || '-'}</p>
+              </div>
+              <div class="col-span-2">
+                <p class="text-sm text-gray-600">Jawatan Perasmi</p>
+                <p class="font-semibold">${app.JawatanPerasmi || '-'}</p>
+              </div>
+            </div>
+
+            <!-- Dokumen Permohonan -->
+            <div class="mt-4 pt-3 border-t">
+              <h4 class="font-semibold mb-2">Dokumen Permohonan</h4>
+              <div class="space-y-1">
+                ${app.FileSuratPermohonan ? `<div><a href="${app.FileSuratPermohonan}" target="_blank" class="text-blue-600 hover:underline"><i class="fas fa-file-pdf"></i> Surat Permohonan</a></div>` : ''}
+                ${app.FileMinitMesyJK ? `<div><a href="${app.FileMinitMesyJK}" target="_blank" class="text-blue-600 hover:underline"><i class="fas fa-file-pdf"></i> Minit Mesyuarat JK</a></div>` : ''}
+                ${app.FileKertasCadangan ? `<div><a href="${app.FileKertasCadangan}" target="_blank" class="text-blue-600 hover:underline"><i class="fas fa-file-pdf"></i> Kertas Cadangan</a></div>` : ''}
+              </div>
+            </div>
+
+            <!-- Surat Kelulusan (if exists) -->
+            ${app.SuratKelulusan ? `
+            <div class="mt-4 p-4 bg-green-50 border-2 border-green-300 rounded-lg">
+              <h4 class="font-bold text-green-800 mb-3 flex items-center gap-2">
+                <i class="fas fa-check-circle"></i>
+                Surat Kelulusan
+              </h4>
+              <a href="${app.SuratKelulusan}" target="_blank" class="inline-flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition">
+                <i class="fas fa-file-pdf"></i>
+                Lihat / Muat Turun Surat Kelulusan
+              </a>
+            </div>
+            ` : ''}
+
+            <!-- Query Alert (if status Query) -->
+            ${app.Status === 'Query' && app.CatatanQuery ? `
             <div class="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded">
               <div class="font-semibold text-sm mb-1">Catatan Query:</div>
-              <p class="text-sm">${data.CatatanQuery}</p>
+              <p class="text-sm">${app.CatatanQuery}</p>
             </div>
-          ` : ''}
+            ` : ''}
 
-          <div class="mt-4 pt-3 border-t text-right">
-            <button id="close-detail-btn" class="px-4 py-2 border rounded hover:bg-gray-50">Tutup</button>
+            <!-- Close Button -->
+            <div class="mt-6 pt-3 border-t text-right">
+              <button id="close-detail-btn" class="px-4 py-2 border rounded hover:bg-gray-50">Tutup</button>
+            </div>
           </div>
         </div>
       </div>
@@ -487,6 +553,7 @@ const PegawaiUI = {
 
 // auto init
 document.addEventListener('DOMContentLoaded', () => PegawaiUI.init());
+
 
 
 
