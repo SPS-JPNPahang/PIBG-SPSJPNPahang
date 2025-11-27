@@ -51,13 +51,9 @@
                 <i class="fas fa-home"></i>
                 <span>Utama</span>
             </button>
-            <button class="tab-btn" data-tab="form">
+           <button class="tab-btn" data-tab="form">
                 <i class="fas fa-file-circle-plus"></i>
-                <span>Permohonan</span>
-            </button>
-            <button class="tab-btn" data-tab="semak">
-                <i class="fas fa-magnifying-glass-chart"></i>
-                <span>Semakan</span>
+                <span>Permohonan & Semakan</span>
             </button>
             <button class="tab-btn" data-tab="pegawai">
                 <i class="fas fa-user-tie"></i>
@@ -122,7 +118,7 @@
             </div>
         </section>
 
-        <!-- PERMOHONAN -->
+        <!-- PERMOHONAN & SEMAKAN -->
         <section id="tab-form" class="tab-content">
             <div class="card">
                 <div class="card-header">
@@ -130,37 +126,37 @@
                         <i class="fas fa-file-circle-plus"></i>
                     </div>
                     <div>
-                        <h2>Borang Permohonan Perasmi</h2>
-                        <p style="margin: 0; color: var(--color-text-secondary); font-size: 16px;">Mesyuarat Agung Tahunan (MAT) PIBG</p>
+                        <h2>Permohonan & Semakan</h2>
+                        <p style="margin: 0; color: var(--color-text-secondary); font-size: 16px;">Hantar permohonan baru atau semak status permohonan</p>
                     </div>
                 </div>
-                
-                <div class="alert alert-info" style="margin-bottom: var(--spacing-lg);">
-                    <i class="fas fa-info-circle"></i>
-                    <div>
-                        <strong>Arahan:</strong> Sila isi semua maklumat dengan lengkap dan tepat. 
-                        Pastikan dokumen yang dimuat naik adalah dalam format PDF dan saiz tidak melebihi 5MB.
-                    </div>
-                </div>
-        
-                <div id="form-container"></div>
-            </div>
-        </section>
 
-        <!-- SEMAKAN STATUS -->
-        <section id="tab-semak" class="tab-content">
-            <div class="card">
-                <div class="card-header">
-                    <div class="card-icon blue">
-                        <i class="fas fa-magnifying-glass-chart"></i>
-                    </div>
-                    <div>
-                        <h2>Semakan Status Permohonan</h2>
-                        <p style="margin: 0; color: var(--color-text-secondary); font-size: 16px;">Cari dan jejak status permohonan anda</p>
-                    </div>
+                <!-- TAB SWITCHER (Permohonan Baru / Semak Status) -->
+                <div style="display: flex; gap: var(--spacing-sm); margin-bottom: var(--spacing-lg); border-bottom: 2px solid var(--color-border);">
+                    <button id="subtab-new" class="subtab-btn active" style="padding: var(--spacing-sm) var(--spacing-md); border: none; background: none; cursor: pointer; font-weight: 600; color: var(--color-text-secondary); border-bottom: 3px solid transparent; transition: all 0.3s;">
+                        <i class="fas fa-plus-circle"></i> Permohonan Baru
+                    </button>
+                    <button id="subtab-check" class="subtab-btn" style="padding: var(--spacing-sm) var(--spacing-md); border: none; background: none; cursor: pointer; font-weight: 600; color: var(--color-text-secondary); border-bottom: 3px solid transparent; transition: all 0.3s;">
+                        <i class="fas fa-search"></i> Semak Status
+                    </button>
                 </div>
-        
-                <div id="semak-container"></div>
+
+                <!-- PERMOHONAN BARU -->
+                <div id="subtab-new-content" class="subtab-content">
+                    <div class="alert alert-info" style="margin-bottom: var(--spacing-lg);">
+                        <i class="fas fa-info-circle"></i>
+                        <div>
+                            <strong>Arahan:</strong> Sila isi semua maklumat dengan lengkap dan tepat. 
+                            Pastikan dokumen yang dimuat naik adalah dalam format PDF dan saiz tidak melebihi 5MB.
+                        </div>
+                    </div>
+                    <div id="form-container"></div>
+                </div>
+
+                <!-- SEMAK STATUS -->
+                <div id="subtab-check-content" class="subtab-content hidden">
+                    <div id="semak-container"></div>
+                </div>
             </div>
         </section>
 
@@ -269,6 +265,42 @@
 
     <script>
         feather.replace(); // aktifkan ikon
+        
+        // Subtab switching for Permohonan & Semakan
+        document.addEventListener('DOMContentLoaded', () => {
+            const subtabNew = document.getElementById('subtab-new');
+            const subtabCheck = document.getElementById('subtab-check');
+            const contentNew = document.getElementById('subtab-new-content');
+            const contentCheck = document.getElementById('subtab-check-content');
+            
+            if (subtabNew && subtabCheck) {
+                subtabNew.addEventListener('click', () => {
+                    subtabNew.classList.add('active');
+                    subtabCheck.classList.remove('active');
+                    contentNew.classList.remove('hidden');
+                    contentCheck.classList.add('hidden');
+                    subtabNew.style.color = 'var(--color-coral)';
+                    subtabNew.style.borderBottomColor = 'var(--color-coral)';
+                    subtabCheck.style.color = 'var(--color-text-secondary)';
+                    subtabCheck.style.borderBottomColor = 'transparent';
+                });
+                
+                subtabCheck.addEventListener('click', () => {
+                    subtabCheck.classList.add('active');
+                    subtabNew.classList.remove('active');
+                    contentCheck.classList.remove('hidden');
+                    contentNew.classList.add('hidden');
+                    subtabCheck.style.color = 'var(--color-blue)';
+                    subtabCheck.style.borderBottomColor = 'var(--color-blue)';
+                    subtabNew.style.color = 'var(--color-text-secondary)';
+                    subtabNew.style.borderBottomColor = 'transparent';
+                });
+                
+                // Initialize active state
+                subtabNew.style.color = 'var(--color-coral)';
+                subtabNew.style.borderBottomColor = 'var(--color-coral)';
+            }
+        });
     </script>
     <!-- Loading Overlay -->
         <div id="loading-overlay">
@@ -281,6 +313,7 @@
         </style>
 </body>
 </html>
+
 
 
 
