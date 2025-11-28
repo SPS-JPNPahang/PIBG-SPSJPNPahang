@@ -143,7 +143,7 @@ const SemakUI = {
             </div>
             <div>
               <p class="text-sm text-gray-600">Masa MAT</p>
-              <p class="font-semibold">${Util.formatMalayTime(data.MasaMAT)}</p>
+              <p class="font-semibold">${Util.formatMalayTime(Util.normalizeTime(data.MasaMAT))}</p>
             </div>
             <div>
               <p class="text-sm text-gray-600">Tempat MAT</p>
@@ -356,3 +356,4 @@ const SemakUI = {
 
 // Auto initialize
 document.addEventListener("DOMContentLoaded", () => SemakUI.init());
+
