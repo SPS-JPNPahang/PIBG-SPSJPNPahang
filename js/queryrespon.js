@@ -116,7 +116,7 @@ const QueryResponUI = {
         payload: { schoolCode: schoolCode }
       });
 
-      notify.close();
+      notify.dismissLoading();
 
       if (res.ok) {
         this.displayQueryDetails(res.data);
@@ -126,7 +126,7 @@ const QueryResponUI = {
       }
 
     } catch (err) {
-      notify.close();
+      notify.dismissLoading();
       notify.error('Ralat semasa menyemak status: ' + err.message);
     }
   },
@@ -335,7 +335,7 @@ const QueryResponUI = {
         filesBase64: filesBase64
       });
 
-      notify.close();
+      notify.dismissLoading();
 
       if (res.ok) {
         notify.success(res.message || 'Respons berjaya dihantar! Status permohonan telah dikemaskini kepada Baru.');
@@ -348,7 +348,7 @@ const QueryResponUI = {
       }
 
     } catch (err) {
-      notify.close();
+      notify.dismissLoading();
       notify.error('Ralat semasa memproses: ' + err.message);
     }
   }
@@ -363,4 +363,5 @@ document.addEventListener('DOMContentLoaded', function() {
       QueryResponUI.renderUI();
     });
   }
+
 });
