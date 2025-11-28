@@ -360,6 +360,16 @@ const PegawaiUI = {
               <p class="text-sm">${app.CatatanQuery}</p>
             </div>
             ` : ''}
+            <!-- Catatan Sekolah (if exists) -->
+            ${app.CatatanSekolah ? `
+            <div class="mt-4 p-3 bg-blue-50 border border-blue-200 rounded">
+              <div class="font-semibold text-sm mb-1 flex items-center gap-2">
+                <i class="fas fa-school text-blue-600"></i>
+                Catatan Balasan Sekolah:
+              </div>
+              <p class="text-sm whitespace-pre-wrap">${app.CatatanSekolah}</p>
+            </div>
+            ` : ''}
 
             <!-- Close Button -->
             <div class="mt-6 pt-3 border-t text-right">
@@ -553,6 +563,7 @@ const PegawaiUI = {
 
 // auto init
 document.addEventListener('DOMContentLoaded', () => PegawaiUI.init());
+
 
 
 
