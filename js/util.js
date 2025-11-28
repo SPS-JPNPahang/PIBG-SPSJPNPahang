@@ -112,58 +112,81 @@ const Util = {
         return `${Util.formatDateDisplay(Util.formatDate(d))} ${d.getHours().toString().padStart(2, '0')}:${d.getMinutes().toString().padStart(2, '0')}`;
     },
 
-        // ---------- Normalize time value coming from Sheet/frontend ----------
-    // Safe, non-destructive: accepts "HH:MM", "HH.MM", numbers (Excel serial or hours),
-    // or compact numbers like 930 -> "09:30". Returns string "HH:MM".
-    normalizeTime: function(value) {
-        if (value === null || value === undefined || value === '') return '';
+            // ---------- Normalize time value coming from Sheet/frontend ----------
+            // Accepts "HH:MM", "HH.MM", numbers (Excel serial or HHMM like 930 or 1887.07).
+            // Returns string "HH:MM" or '' when not possible.
+            normalizeTime: function(value) {
+                if (value === null || value === undefined || value === '') return '';
+        
+                // If already "HH:MM" string
+                if (typeof value === 'string') {
+                    const s = value.replace(/^'/, '').trim();
+                    if (/^\d{1,2}:\d{2}$/.test(s)) return s;
+                    if (/^\d{1,2}\.\d{2}$/.test(s)) return s.replace('.', ':');
+                    if (/^\d{3,4}$/.test(s)) {
+                        const n = s.padStart(4, '0');
+                        return n.slice(0,2) + ':' + n.slice(2);
+                    }
+                    // If string like "18.5" -> interpret as hours.decimal
+                    if (/^\d{1,2}(\.\d+)?$/.test(s)) {
+                        const num = parseFloat(s);
+                        if (!isNaN(num)) {
+                            const hh = Math.floor(num);
+                            const mm = Math.round((num - hh) * 60);
+                            return String(hh).padStart(2,'0') + ':' + String(mm).padStart(2,'0');
+                        }
+                    }
+                    return s;
+                }
+        
+                // If number
+                if (typeof value === 'number' && !isNaN(value)) {
+                    // Case A: Excel time fraction 0 < value < 1
+                    if (value > 0 && value < 1) {
+                        const totalMinutes = Math.round(value * 24 * 60);
+                        const hh = Math.floor(totalMinutes / 60);
+                        const mm = totalMinutes % 60;
+                        return String(hh).padStart(2,'0') + ':' + String(mm).padStart(2,'0');
+                    }
+        
+                    // Case B: number like 18.5 -> hours.fraction
+                    if (value >= 0 && value < 24 && Math.floor(value) !== value) {
+                        const hh = Math.floor(value);
+                        const mm = Math.round((value - hh) * 60);
+                        return String(hh).padStart(2,'0') + ':' + String(mm).padStart(2,'0');
+                    }
+        
+                    // Case C: number like 930 or 1887.07 -> treat as HHMM.frac
+                    // Split integer and fractional parts
+                    const intPart = Math.floor(value);
+                    const fracPart = Math.abs(value - intPart);
+        
+                    // hours/minutes from intPart (HHMM)
+                    const hhFromInt = Math.floor(intPart / 100);
+                    let mmFromInt = intPart % 100;
+        
+                    // fractional part: interpret as "xx.yy" -> yy as extra minutes (approx)
+                    const fracAsMinutes = Math.round(fracPart * 100);
+        
+                    // total minutes then normalize (handles mm >= 60)
+                    let totalMinutes = hhFromInt * 60 + mmFromInt + fracAsMinutes;
+        
+                    // If intPart is small (<= 24) and seems like plain hour, handle as hh:00
+                    if (intPart >= 0 && intPart <= 24 && intPart.toString().length <= 2) {
+                        totalMinutes = intPart * 60 + Math.round(fracPart * 60);
+                    }
+        
+                    // If intPart looks like obvious HHMM (>=100), we already converted
+                    const finalH = Math.floor(totalMinutes / 60) % 24;
+                    const finalM = totalMinutes % 60;
+        
+                    return String(finalH).padStart(2,'0') + ':' + String(finalM).padStart(2,'0');
+                }
+        
+                // Fallback
+                return String(value);
+            },
 
-        // If already "HH:MM" string
-        if (typeof value === 'string') {
-            const s = value.replace(/^'/, '').trim(); // strip leading apostrophe from Sheets display
-            if (/^\d{1,2}:\d{2}$/.test(s)) return s;
-            if (/^\d{1,2}\.\d{2}$/.test(s)) return s.replace('.', ':');
-            if (/^\d{3,4}$/.test(s)) { // e.g. "930" -> "09:30"
-                const n = s.padStart(4, '0');
-                return n.slice(0,2) + ':' + n.slice(2);
-            }
-            return s;
-        }
-
-        // If number (could be Excel time fraction, or plain hours)
-        if (typeof value === 'number' && !isNaN(value)) {
-            // If value appears like Excel serial time (0..1) -> fractional day
-            if (value > 0 && value < 1) {
-                const totalMinutes = Math.round(value * 24 * 60);
-                const hh = String(Math.floor(totalMinutes / 60)).padStart(2,'0');
-                const mm = String(totalMinutes % 60).padStart(2,'0');
-                return hh + ':' + mm;
-            }
-            // If value looks like hours with fractional (e.g. 18.5) treat fractional as .5 hour
-            if (value >= 0 && value < 24 && Math.floor(value) !== value) {
-                const hh = String(Math.floor(value)).padStart(2,'0');
-                const mm = String(Math.round((value - Math.floor(value)) * 60)).padStart(2,'0');
-                return hh + ':' + mm;
-            }
-            // If integer like 930 or 9 or 18 => handle as HHMM or HH
-            const asInt = Math.round(value);
-            if (asInt >= 0 && asInt <= 2359) {
-                const txt = String(asInt).padStart(4,'0');
-                return txt.slice(0,2) + ':' + txt.slice(2);
-            }
-            // fallback: try to extract fractional part
-            const frac = value % 1;
-            if (frac !== 0) {
-                const totalMinutes = Math.round(frac * 24 * 60);
-                const hh = String(Math.floor(totalMinutes / 60)).padStart(2,'0');
-                const mm = String(totalMinutes % 60).padStart(2,'0');
-                return hh + ':' + mm;
-            }
-            return String(asInt).padStart(2,'0') + ':00';
-        }
-
-        return String(value);
-    },
 
     // ---------- DATE & TIME FORMATTING (Malay Standard) ----------
     formatMalayDate: function(dateInput) {
@@ -485,4 +508,5 @@ function showNotification(type, message) {
 // Expose to global
 window.Util = Util;
 window.notify = notify;
+
 
