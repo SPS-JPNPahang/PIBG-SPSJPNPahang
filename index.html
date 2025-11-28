@@ -67,6 +67,10 @@
                 <i class="fas fa-user-shield"></i>
                 <span>TP</span>
             </button>
+            <button class="tab-btn" data-tab="queryrespon">
+                <i class="fas fa-reply"></i>
+                <span>Respon Query</span>
+            </button>
             <button class="tab-btn" data-tab="info">
                 <i class="fas fa-circle-info"></i>
                 <span>Info</span>
@@ -199,7 +203,22 @@
                 <div id="tp-dashboard" class="hidden"></div>
             </div>
         </section>
-
+        <!-- RESPON QUERY -->
+        <section id="tab-queryrespon" class="tab-content">
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-icon coral">
+                        <i class="fas fa-reply"></i>
+                    </div>
+                    <div>
+                        <h2>Respon Query Pegawai</h2>
+                        <p style="margin: 0; color: var(--color-text-secondary); font-size: 16px;">Kemaskini dokumen untuk permohonan Query</p>
+                    </div>
+                </div>
+                
+                <div id="queryrespon-container"></div>
+            </div>
+        </section>
         <!-- MUAT TURUN -->
         <section id="tab-muat" class="tab-content">
             <h2 class="text-lg font-semibold mb-3">Dokumen Muat Turun</h2>
@@ -266,6 +285,7 @@
     <script src="js/semak.js"></script>
     <script src="js/pegawai.js"></script>
     <script src="js/tp.js"></script>
+    <script src="js/queryrespon.js"></script>
 
     <script>
         feather.replace(); // aktifkan ikon
@@ -317,6 +337,7 @@
         </style>
 </body>
 </html>
+
 
 
 
