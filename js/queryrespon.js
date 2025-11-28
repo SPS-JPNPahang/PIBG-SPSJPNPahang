@@ -273,8 +273,9 @@ const QueryResponUI = {
     detailsDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
   },
 
-  /**
+   /**
    * Submit response with files and notes
+   * Replace existing submitResponse function with this one.
    */
   submitResponse: async function(schoolCode) {
     const fSurat = document.getElementById('qr-surat').files[0];
@@ -288,47 +289,90 @@ const QueryResponUI = {
 
     const catatan = document.getElementById('qr-catatan').value.trim();
 
-    // Optional: Make catatan mandatory (uncomment if needed)
-    // if (!catatan) {
-    //   return notify.warning('Sila masukkan catatan balasan untuk pegawai.');
-    // }
-
     try {
       notify.loading('Sedang memproses respons anda...');
 
-      // Convert files to base64
+      // limit check (adjust if anda mahu)
+      const MAX_BYTES = 20 * 1024 * 1024; // 20 MB
+      const tooLarge = (file) => file && file.size && file.size > MAX_BYTES;
+
+      if (tooLarge(fSurat) || tooLarge(fMinit) || tooLarge(fKertas)) {
+        notify.dismissLoading();
+        return notify.error('Salah satu fail lebih besar daripada had 20MB. Sila compress atau gunakan fail lebih kecil.');
+      }
+
+      // Helper: dapatkan pure base64 string dari file input menggunakan Util.fileToBase64
+      async function _getPureBase64(file) {
+        if (!file) return null;
+        try {
+          const r = await Util.fileToBase64(file); // boleh return object atau string
+          let raw = null;
+
+          if (typeof r === 'object' && r !== null) {
+            // Jika Util.fileToBase64 mengembalikan {name,type,data}
+            if (r.data) raw = String(r.data);
+            else if (r.toString) raw = String(r);
+          } else if (typeof r === 'string') {
+            raw = r;
+          } else {
+            raw = null;
+          }
+
+          if (!raw) return null;
+
+          // Remove prefix "data:...;base64," jika ada
+          raw = raw.replace(/^data:[^;]+;base64,/, '');
+          // Remove whitespace/newlines
+          raw = raw.replace(/\s+/g, '');
+          // Replace URL-safe base64 chars
+          raw = raw.replace(/-/g, '+').replace(/_/g, '/');
+          // Pad base64 to multiple of 4
+          const mod = raw.length % 4;
+          if (mod > 0) raw += '='.repeat(4 - mod);
+
+          // Quick validation: only base64 chars remain
+          if (!/^[A-Za-z0-9+/=]+$/.test(raw)) {
+            console.warn('Found suspicious chars in base64 for file:', file.name);
+            // still return raw (backend will error with clearer message), but we log
+          }
+
+          return raw;
+        } catch (ex) {
+          console.error('Error in Util.fileToBase64 for', file.name, ex);
+          throw new Error('Gagal baca fail ' + file.name + ' (baca base64).');
+        }
+      }
+
+      // Build files object to send
       const filesBase64 = {};
 
       if (fSurat) {
-        filesBase64.surat = {
-          name: fSurat.name,
-          mimeType: fSurat.type,
-          data: await Util.fileToBase64(fSurat)
-        };
+        const b = await _getPureBase64(fSurat);
+        if (b) filesBase64.surat = { name: fSurat.name, data: b };
       }
-
       if (fMinit) {
-        filesBase64.minit = {
-          name: fMinit.name,
-          mimeType: fMinit.type,
-          data: await Util.fileToBase64(fMinit)
-        };
+        const b = await _getPureBase64(fMinit);
+        if (b) filesBase64.minit = { name: fMinit.name, data: b };
+      }
+      if (fKertas) {
+        const b = await _getPureBase64(fKertas);
+        if (b) filesBase64.kertas = { name: fKertas.name, data: b };
       }
 
-      if (fKertas) {
-        filesBase64.kertas = {
-          name: fKertas.name,
-          mimeType: fKertas.type,
-          data: await Util.fileToBase64(fKertas)
-        };
-      }
+      // DEBUG: show lengths & prefixes to console
+      console.log('QueryRespon: prepared filesBase64 lengths:', {
+        surat_len: filesBase64.surat ? filesBase64.surat.data.length : 0,
+        minit_len: filesBase64.minit ? filesBase64.minit.data.length : 0,
+        kertas_len: filesBase64.kertas ? filesBase64.kertas.data.length : 0
+      });
+      if (filesBase64.surat) console.log('surat_pref:', filesBase64.surat.data.substring(0,40));
+      if (filesBase64.minit) console.log('minit_pref:', filesBase64.minit.data.substring(0,40));
+      if (filesBase64.kertas) console.log('kertas_pref:', filesBase64.kertas.data.substring(0,40));
 
       // Submit to backend
-      const catatan = document.getElementById('qr-catatan').value.trim();
-
       const res = await Util.postJSON({
         type: 'queryResponSubmit',
-        payload: { 
+        payload: {
           schoolCode: schoolCode,
           catatanSekolah: catatan
         },
@@ -336,20 +380,27 @@ const QueryResponUI = {
       });
 
       notify.dismissLoading();
+      console.log('QueryRespon: backend response ->', res);
 
-      if (res.ok) {
+      if (res && res.ok) {
         notify.success(res.message || 'Respons berjaya dihantar! Status permohonan telah dikemaskini kepada Baru.');
-        
-        // Reset form
         this.renderUI();
-
       } else {
-        notify.error(res.message || 'Ralat semasa menghantar respons.');
+        // Jika backend bagi details, tapis dan paparkan
+        if (res && res.message) {
+          notify.error('Gagal: ' + res.message);
+        } else {
+          notify.error('Ralat semasa menghantar respons.');
+        }
+        // show any extra debugging details to console
+        if (res && res.details) console.warn('Backend details:', res.details);
       }
 
     } catch (err) {
       notify.dismissLoading();
-      notify.error('Ralat semasa memproses: ' + err.message);
+      console.error('QueryRespon: exception ->', err);
+      // If error.message ada, tunjuk; kalau tak, tunjuk stringified
+      notify.error('Ralat semasa memproses: ' + (err && err.message ? err.message : String(err)));
     }
   }
 
@@ -365,3 +416,4 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 
 });
+
