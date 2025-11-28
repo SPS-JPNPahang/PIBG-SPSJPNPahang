@@ -112,6 +112,59 @@ const Util = {
         return `${Util.formatDateDisplay(Util.formatDate(d))} ${d.getHours().toString().padStart(2, '0')}:${d.getMinutes().toString().padStart(2, '0')}`;
     },
 
+        // ---------- Normalize time value coming from Sheet/frontend ----------
+    // Safe, non-destructive: accepts "HH:MM", "HH.MM", numbers (Excel serial or hours),
+    // or compact numbers like 930 -> "09:30". Returns string "HH:MM".
+    normalizeTime: function(value) {
+        if (value === null || value === undefined || value === '') return '';
+
+        // If already "HH:MM" string
+        if (typeof value === 'string') {
+            const s = value.replace(/^'/, '').trim(); // strip leading apostrophe from Sheets display
+            if (/^\d{1,2}:\d{2}$/.test(s)) return s;
+            if (/^\d{1,2}\.\d{2}$/.test(s)) return s.replace('.', ':');
+            if (/^\d{3,4}$/.test(s)) { // e.g. "930" -> "09:30"
+                const n = s.padStart(4, '0');
+                return n.slice(0,2) + ':' + n.slice(2);
+            }
+            return s;
+        }
+
+        // If number (could be Excel time fraction, or plain hours)
+        if (typeof value === 'number' && !isNaN(value)) {
+            // If value appears like Excel serial time (0..1) -> fractional day
+            if (value > 0 && value < 1) {
+                const totalMinutes = Math.round(value * 24 * 60);
+                const hh = String(Math.floor(totalMinutes / 60)).padStart(2,'0');
+                const mm = String(totalMinutes % 60).padStart(2,'0');
+                return hh + ':' + mm;
+            }
+            // If value looks like hours with fractional (e.g. 18.5) treat fractional as .5 hour
+            if (value >= 0 && value < 24 && Math.floor(value) !== value) {
+                const hh = String(Math.floor(value)).padStart(2,'0');
+                const mm = String(Math.round((value - Math.floor(value)) * 60)).padStart(2,'0');
+                return hh + ':' + mm;
+            }
+            // If integer like 930 or 9 or 18 => handle as HHMM or HH
+            const asInt = Math.round(value);
+            if (asInt >= 0 && asInt <= 2359) {
+                const txt = String(asInt).padStart(4,'0');
+                return txt.slice(0,2) + ':' + txt.slice(2);
+            }
+            // fallback: try to extract fractional part
+            const frac = value % 1;
+            if (frac !== 0) {
+                const totalMinutes = Math.round(frac * 24 * 60);
+                const hh = String(Math.floor(totalMinutes / 60)).padStart(2,'0');
+                const mm = String(totalMinutes % 60).padStart(2,'0');
+                return hh + ':' + mm;
+            }
+            return String(asInt).padStart(2,'0') + ':00';
+        }
+
+        return String(value);
+    },
+
     // ---------- DATE & TIME FORMATTING (Malay Standard) ----------
     formatMalayDate: function(dateInput) {
         if (!dateInput) return '';
@@ -432,3 +485,4 @@ function showNotification(type, message) {
 // Expose to global
 window.Util = Util;
 window.notify = notify;
+
