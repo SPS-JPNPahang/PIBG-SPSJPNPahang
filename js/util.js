@@ -233,34 +233,108 @@ const Util = {
         }
     },
     
+       // ---------- Format masa untuk display (12-jam, Melayu) ----------
+    // Input boleh: "HH:MM", "HH.MM", "930", 18.5, 0.75 (Excel fraction), 1887.07, Date object
+    // Output contoh: "7.00 Malam", "2.30 Petang", "12.00 Tengah Hari"
     formatMalayTime: function(timeInput) {
-        if (!timeInput) return '';
+        if (timeInput === null || timeInput === undefined || timeInput === '') return '';
+
         try {
-            let hours, minutes;
+            let hh = null;
+            let mm = 0;
+
+            // If Date object
             if (timeInput instanceof Date) {
-                hours = timeInput.getHours();
-                minutes = timeInput.getMinutes();
+                hh = timeInput.getHours();
+                mm = timeInput.getMinutes();
             } else if (typeof timeInput === 'string') {
-                const parts = timeInput.split(':');
-                hours = parseInt(parts[0]);
-                minutes = parts[1] || '00';
+                const s = timeInput.trim();
+
+                // Common "HH:MM"
+                if (/^\d{1,2}:\d{1,2}$/.test(s)) {
+                    const parts = s.split(':');
+                    hh = parseInt(parts[0], 10);
+                    mm = parseInt(parts[1], 10);
+                }
+                // "HH.MM" (tukar titik kepada ':')
+                else if (/^\d{1,2}\.\d{1,2}$/.test(s)) {
+                    const parts = s.split('.');
+                    hh = parseInt(parts[0], 10);
+                    mm = parseInt(parts[1], 10);
+                }
+                // Plain digits "930" or "0930" -> HHMM
+                else if (/^\d{1,4}$/.test(s)) {
+                    const padded = s.padStart(4, '0');
+                    hh = parseInt(padded.slice(0,2), 10);
+                    mm = parseInt(padded.slice(2), 10);
+                }
+                // Decimal hours "18.5" or "7.25"
+                else if (/^\d+(\.\d+)?$/.test(s)) {
+                    const num = parseFloat(s);
+                    hh = Math.floor(num);
+                    mm = Math.round((num - hh) * 60);
+                } else {
+                    // fallback: try Date parser
+                    const d = new Date(s);
+                    if (!isNaN(d.getTime())) {
+                        hh = d.getHours();
+                        mm = d.getMinutes();
+                    } else {
+                        return String(s);
+                    }
+                }
+            } else if (typeof timeInput === 'number' && !isNaN(timeInput)) {
+                const v = timeInput;
+                // Excel fraction between 0 and 1
+                if (v > 0 && v < 1) {
+                    const totalMinutes = Math.round(v * 24 * 60);
+                    hh = Math.floor(totalMinutes / 60) % 24;
+                    mm = totalMinutes % 60;
+                }
+                // decimal hours like 18.5
+                else if (v >= 0 && v < 24 && v !== Math.floor(v)) {
+                    hh = Math.floor(v);
+                    mm = Math.round((v - hh) * 60);
+                }
+                // treat as HHMM or HHMM.frac (e.g. 930 or 1887.07)
+                else {
+                    const intPart = Math.floor(Math.abs(v));
+                    const fracPart = Math.abs(v) - intPart;
+                    hh = Math.floor(intPart / 100);
+                    mm = intPart % 100;
+                    // fractional tail like .07 -> treat as extra minutes (7)
+                    const fracAsMinutes = Math.round(fracPart * 100);
+                    mm = mm + fracAsMinutes;
+                }
             } else {
                 return '';
             }
-            let period = 'Pagi';
-            if (hours >= 12 && hours < 15) {
-                period = 'Tengah Hari';
-            } else if (hours >= 15 && hours < 19) {
-                period = 'Petang';
-            } else if (hours >= 19 || hours < 6) {
-                period = 'Malam';
+
+            // Normalise minutes overflowing 60
+            if (mm >= 60) {
+                hh = hh + Math.floor(mm / 60);
+                mm = mm % 60;
             }
-            const displayHours = hours > 12 ? hours - 12 : (hours === 0 ? 12 : hours);
-            return displayHours + '.' + minutes + ' ' + period;
+            hh = ((hh % 24) + 24) % 24; // normalise hour into 0-23
+
+            // Determine Malay period (12-hour labels)
+            let period = 'Pagi';
+            if (hh >= 12 && hh < 15) period = 'Tengah Hari';
+            else if (hh >= 15 && hh < 19) period = 'Petang';
+            else if (hh >= 19 || hh < 6) period = 'Malam';
+
+            // Convert to 12-hour display hour
+            let displayHour = hh % 12;
+            if (displayHour === 0) displayHour = 12;
+
+            // Use dot notation for minutes (e.g. 7.00)
+            const minuteStr = String(mm).padStart(2, '0');
+            return `${displayHour}.${minuteStr} ${period}`;
         } catch (e) {
             return '';
         }
     },
+
     
     formatMalayDateTime: function(dateTimeInput) {
         if (!dateTimeInput) return '';
@@ -508,5 +582,6 @@ function showNotification(type, message) {
 // Expose to global
 window.Util = Util;
 window.notify = notify;
+
 
 
