@@ -19,7 +19,7 @@ const SemakUI = {
           <div class="mb-4">
             <label class="block text-sm font-medium mb-2">Kod Sekolah <span class="text-red-500">*</span></label>
             <input id="semak-kod" type="text" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500" 
-                   placeholder="Contoh: CBA0001" maxlength="7">
+                   placeholder="Contoh: CBA0001" maxlength="7" style="text-transform: uppercase;">
             <p class="text-xs text-gray-600 mt-1">Masukkan kod sekolah anda untuk semak status permohonan terkini</p>
           </div>
 
@@ -196,17 +196,31 @@ const SemakUI = {
             <div class="flex items-start gap-3">
               <i class="fas fa-exclamation-triangle text-yellow-600 text-2xl mt-1"></i>
               <div class="flex-1">
-                <h4 class="font-bold text-yellow-800 mb-2">Permohonan Perlu Dikemaskini</h4>
+                <h4 class="font-bold text-yellow-800 mb-2">Permohonan Perlu Tindakan Segera</h4>
                 <p class="text-sm text-yellow-900 mb-3">${data.CatatanQuery}</p>
-                <button onclick="SemakUI.showResubmitForm('${data.KodSekolah}')" class="px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 font-semibold">
-                  <i class="fas fa-upload"></i> Muat Naik Dokumen Baharu
-                </button>
+                
+                <div class="mt-4 p-4 bg-blue-50 border-2 border-blue-300 rounded-lg">
+                  <div class="flex items-start gap-3">
+                    <i class="fas fa-info-circle text-blue-600 text-xl flex-shrink-0 mt-1"></i>
+                    <div>
+                      <h5 class="font-semibold text-blue-900 mb-2">Cara Mengemas Kini Dokumen</h5>
+                      <p class="text-sm text-blue-800 mb-2">
+                        Untuk mengemaskini dokumen permohonan yang ditandakan Query, 
+                        sila ikut langkah berikut:
+                      </p>
+                      <ol class="text-sm text-blue-800 list-decimal list-inside space-y-1 ml-2">
+                        <li>Klik pada tab <strong>"Query"</strong> di bahagian navigasi atas</li>
+                        <li>Cari permohonan anda menggunakan <strong>Kod Sekolah</strong> </li>
+                        <li>Klik butang <strong>"Respon Query"</strong> untuk muat naik dokumen baharu</li>
+                      </ol>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
       `;
     }
-
     // Surat Kelulusan (if Lulus)
     if (data.Status === 'Lulus' && data.SuratKelulusan) {
       html += `
@@ -356,4 +370,5 @@ const SemakUI = {
 
 // Auto initialize
 document.addEventListener("DOMContentLoaded", () => SemakUI.init());
+
 
