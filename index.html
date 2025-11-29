@@ -387,7 +387,31 @@
                 <p>Sila tunggu, jangan tutup window ini.</p>
             </div>
         </div>
+    <!-- FIX LOGIN TAB (FINAL & PERMANENT) -->
+    <script>
+    document.addEventListener("DOMContentLoaded", () => {
+        
+        const loginTabBtn = document.querySelector('[data-tab="login"]');
+        if (!loginTabBtn) return;
+    
+        loginTabBtn.addEventListener("click", () => {
+            // Render semula login setiap kali tab dibuka
+            if (typeof AuthUI !== "undefined" && AuthUI.renderUnifiedLogin) {
+                AuthUI.renderUnifiedLogin();
+            }
+    
+            // Pastikan login handler terpasang (pegawai & tp)
+            if (typeof AuthUI !== "undefined" && AuthUI.attachLoginHandler) {
+                AuthUI.attachLoginHandler("pegawai-login", "pegawai-dashboard");
+                AuthUI.attachLoginHandler("tp-login", "tp-dashboard");
+            }
+        });
+    
+    });
+    </script>
+
 </body>
 </html>
+
 
 
