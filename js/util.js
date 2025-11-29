@@ -339,10 +339,17 @@ const Util = {
             hh = ((hh % 24) + 24) % 24; // normalise hour into 0-23
 
             // Determine Malay period (12-hour labels)
-            let period = 'Pagi';
-            if (hh >= 12 && hh < 15) period = 'Tengah Hari';
-            else if (hh >= 15 && hh < 19) period = 'Petang';
-            else if (hh >= 19 || hh < 6) period = 'Malam';
+            let period = '';
+                if (hh === 0) {
+                    period = 'Tengah Malam';
+                } else if (hh < 12) {
+                    period = 'Pagi';
+                } else if (hh === 12) {
+                    period = 'Tengah Hari';
+                } else {
+                    // hh > 12 (13-23)
+                    period = 'Petang';
+                }
 
             // Convert to 12-hour display hour
             let displayHour = hh % 12;
@@ -607,6 +614,7 @@ function showNotification(type, message) {
 // Expose to global
 window.Util = Util;
 window.notify = notify;
+
 
 
 
