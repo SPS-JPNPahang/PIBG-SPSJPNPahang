@@ -111,12 +111,6 @@ const Util = {
         const d = new Date(timestamp);
         return `${Util.formatDateDisplay(Util.formatDate(d))} ${d.getHours().toString().padStart(2, '0')}:${d.getMinutes().toString().padStart(2, '0')}`;
     },
-    // ---------- Format masa untuk display ----------
-formatDateTime: function (timestamp) {
-    if (!timestamp) return '-';
-    const d = new Date(timestamp);
-    return `${Util.formatDateDisplay(Util.formatDate(d))} ${d.getHours().toString().padStart(2, '0')}:${d.getMinutes().toString().padStart(2, '0')}`;
-},
 
             // ---------- Format tarikh dari ISO string (Google Sheets) ke DD/MM/YYYY ----------
             formatTarikhMAT: function(dateString) {
@@ -363,19 +357,23 @@ formatDateTime: function (timestamp) {
     },
 
     
-    formatMalayDateTime: function(dateTimeInput) {
+        formatMalayDateTime: function(dateTimeInput) {
         if (!dateTimeInput) return '';
         try {
-            const d = new Date(dateTimeInput);
-            if (isNaN(d.getTime())) return '';
-            const datePart = this.formatMalayDate(d);
-            const timePart = this.formatMalayTime(d);
+            // Pass raw string directly to avoid Date object timezone conversion
+            const datePart = this.formatMalayDate(dateTimeInput);
+            const timePart = this.formatMalayTime(dateTimeInput);
+            
+            if (!datePart && !timePart) return '';
+            if (!timePart) return datePart;
+            if (!datePart) return timePart;
+            
             return datePart + ', ' + timePart;
         } catch (e) {
             return '';
         }
     }
-};
+    };
 
 // ==========================================
 // iziToast Notification System - IMPROVED
@@ -609,6 +607,7 @@ function showNotification(type, message) {
 // Expose to global
 window.Util = Util;
 window.notify = notify;
+
 
 
 
