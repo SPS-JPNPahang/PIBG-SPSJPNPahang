@@ -51,7 +51,7 @@ const FormUI = {
                         <div>
                             <label class="block text-sm font-medium mb-1">Kod Sekolah <span class="text-red-500">*</span></label>
                             <input id="f-kod" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500" 
-                                   placeholder="Contoh: CBA0001" maxlength="7">
+                                   placeholder="Contoh: CBA0001" maxlength="7" style="text-transform: uppercase;">
                             <p class="text-xs text-gray-600 mt-1">Masukkan kod sekolah anda</p>
                         </div>
                         <div>
@@ -592,3 +592,4 @@ resetAllFields: function() {
 
 // Auto initialize
 document.addEventListener("DOMContentLoaded", () => FormUI.init());
+
