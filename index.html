@@ -166,35 +166,84 @@
         </section>
 
         <!-- TAB: LOG MASUK -->
-        <section id="tab-login" class="tab-content hidden">
-        
-            <div class="card p-4 bg-white rounded shadow">
-        
-                <div class="card-header flex items-center justify-between mb-4">
-                    <div class="flex items-center gap-3">
-                        <i class="fas fa-sign-in-alt text-2xl"></i>
-                        <div>
-                            <h3 class="text-lg font-semibold">Log Masuk Pegawai</h3>
-                            <p class="text-sm text-gray-600">
-                                Sistem akan mengesan role anda secara automatik.
-                            </p>
-                        </div>
-                    </div>
-                </div>
-        
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div id="pegawai-login"></div>
-                    <div id="tp-login"></div>
-                </div>
-        
-                <div class="mt-6">
-                    <div id="pegawai-dashboard" class="hidden"></div>
-                    <div id="tp-dashboard" class="hidden"></div>
-                </div>
-        
+        <section id="tab-login" class="tab-content">
+          <div class="card">
+            <div class="card-header">
+              <div class="card-icon coral">
+                <i class="fas fa-sign-in-alt"></i>
+              </div>
+              <div>
+                <h2>Log Masuk</h2>
+                <p style="margin:0; color:var(--color-text-secondary); font-size:16px;">
+                  Pilih portal dan masukkan kata laluan. Sistem akan mengesan role secara automatik.
+                </p>
+              </div>
             </div>
         
+            <!-- SUBTAB (Petak Pilihan Portal) -->
+            <div style="display:flex; gap:var(--spacing-sm); margin-bottom:var(--spacing-lg); border-bottom:2px solid var(--color-border);">
+              <button id="login-sub-pegawai" class="subtab-btn active" style="padding:var(--spacing-sm) var(--spacing-md); border:none; background:none; cursor:pointer; font-weight:600;">
+                <i class="fas fa-user-tie"></i> Pegawai
+              </button>
+              <button id="login-sub-tp" class="subtab-btn" style="padding:var(--spacing-sm) var(--spacing-md); border:none; background:none; cursor:pointer; font-weight:600;">
+                <i class="fas fa-user-shield"></i> Timbalan Pengarah
+              </button>
+            </div>
+        
+            <!-- LOGIN PANELS (satu panel aktif pada satu masa) -->
+            <div class="login-panels" style="padding: var(--spacing-md) 0;">
+              <div id="login-panel-pegawai" class="login-panel">
+                 <!-- AuthUI akan render di dalam elemen ini -->
+                 <div id="pegawai-login"></div>
+              </div>
+        
+              <div id="login-panel-tp" class="login-panel hidden">
+                 <div id="tp-login"></div>
+              </div>
+            </div>
+        
+          </div>
         </section>
+        
+        <!-- Script: subtab switching untuk Log Masuk (tidak mengubah AuthUI) -->
+        <script>
+          (function(){
+            function $(id){ return document.getElementById(id); }
+        
+            const btnPeg = $('login-sub-pegawai');
+            const btnTP = $('login-sub-tp');
+            const panelPeg = $('login-panel-pegawai');
+            const panelTP = $('login-panel-tp');
+        
+            function showPegawai(){
+              btnPeg.classList.add('active');
+              btnTP.classList.remove('active');
+              panelPeg.classList.remove('hidden');
+              panelTP.classList.add('hidden');
+            }
+            function showTP(){
+              btnTP.classList.add('active');
+              btnPeg.classList.remove('active');
+              panelTP.classList.remove('hidden');
+              panelPeg.classList.add('hidden');
+            }
+        
+            if(btnPeg && btnTP){
+              btnPeg.addEventListener('click', showPegawai);
+              btnTP.addEventListener('click', showTP);
+            }
+        
+            // Pastikan AuthUI render di kedua container bila DOM ready.
+            document.addEventListener('DOMContentLoaded', function(){
+              if(window.AuthUI && AuthUI.renderUnifiedLogin) {
+                AuthUI.renderUnifiedLogin();
+              }
+              // show default (pegawai)
+              showPegawai();
+            });
+          })();
+        </script>
+
 
         <!-- RESPON QUERY -->
         <section id="tab-queryrespon" class="tab-content">
@@ -340,3 +389,4 @@
         </div>
 </body>
 </html>
+
