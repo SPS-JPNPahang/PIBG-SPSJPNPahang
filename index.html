@@ -59,22 +59,19 @@
                 <i class="fas fa-file-circle-plus"></i>
                 <span>Permohonan & Semakan</span>
             </button>
-            <button class="tab-btn" data-tab="pegawai">
-                <i class="fas fa-user-tie"></i>
-                <span>Pegawai</span>
-            </button>
-            <button class="tab-btn" data-tab="tp">
-                <i class="fas fa-user-shield"></i>
-                <span>TP</span>
+            <button class="tab-btn" data-tab="login">
+                <i class="fas fa-sign-in-alt"></i>
+                <span>Log Masuk</span>
             </button>
             <button class="tab-btn" data-tab="queryrespon">
                 <i class="fas fa-reply"></i>
-                <span>Respon Query</span>
+                <span>Query</span>
             </button>
-            <button class="tab-btn" data-tab="info">
-                <i class="fas fa-circle-info"></i>
-                <span>Info</span>
-            </button>
+           <button class="tab-btn" data-tab="download">
+            <i class="fas fa-download"></i>
+            <span>Muat Turun</span>
+        </button>
+
         </div>
     </nav>
 
@@ -168,41 +165,37 @@
             </div>
         </section>
 
-        <!-- PEGAWAI -->
-        <section id="tab-pegawai" class="tab-content">
-            <div class="card">
-                <div class="card-header">
-                    <div class="card-icon purple">
-                        <i class="fas fa-user-tie"></i>
-                    </div>
-                    <div>
-                        <h2>Dashboard Pegawai Penyemak</h2>
-                        <p style="margin: 0; color: var(--color-text-secondary); font-size: 16px;">Panel pengurusan dan kelulusan permohonan</p>
+        <!-- TAB: LOG MASUK -->
+        <section id="tab-login" class="tab-content hidden">
+        
+            <div class="card p-4 bg-white rounded shadow">
+        
+                <div class="card-header flex items-center justify-between mb-4">
+                    <div class="flex items-center gap-3">
+                        <i class="fas fa-sign-in-alt text-2xl"></i>
+                        <div>
+                            <h3 class="text-lg font-semibold">Log Masuk Pegawai</h3>
+                            <p class="text-sm text-gray-600">
+                                Sistem akan mengesan role anda secara automatik.
+                            </p>
+                        </div>
                     </div>
                 </div>
         
-                <div id="pegawai-login"></div>
-                <div id="pegawai-dashboard" class="hidden"></div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div id="pegawai-login"></div>
+                    <div id="tp-login"></div>
+                </div>
+        
+                <div class="mt-6">
+                    <div id="pegawai-dashboard" class="hidden"></div>
+                    <div id="tp-dashboard" class="hidden"></div>
+                </div>
+        
             </div>
+        
         </section>
 
-        <!-- TP -->
-        <section id="tab-tp" class="tab-content">
-            <div class="card">
-                <div class="card-header">
-                    <div class="card-icon blue">
-                        <i class="fas fa-user-shield"></i>
-                    </div>
-                    <div>
-                        <h2>Dashboard Timbalan Pengarah</h2>
-                        <p style="margin: 0; color: var(--color-text-secondary); font-size: 16px;">Terhad untuk akses Timbalan Pengarah SPS JPN Pahang Sahaja</p>
-                    </div>
-                </div>
-        
-                <div id="tp-login"></div>
-                <div id="tp-dashboard" class="hidden"></div>
-            </div>
-        </section>
         <!-- RESPON QUERY -->
         <section id="tab-queryrespon" class="tab-content">
             <div class="card">
@@ -219,58 +212,69 @@
                 <div id="queryrespon-container"></div>
             </div>
         </section>
+
         <!-- MUAT TURUN -->
-        <section id="tab-muat" class="tab-content">
-            <h2 class="text-lg font-semibold mb-3">Dokumen Muat Turun</h2>
-
-            <p class="text-gray-600 text-sm">Senarai dokumen rasmi PIBG boleh disediakan di sini.</p>
-            <ul class="list-disc ml-5 mt-2">
-                <li>Borang Permohonan PIBG</li>
-                <li>Contoh Surat Rasmi</li>
-                <li>Contoh Minit Mesyuarat</li>
-                <li>Lain-lain dokumen rujukan</li>
-            </ul>
-
-        </section>
-
-        <!-- INFO -->
-        <section id="tab-info" class="tab-content">
-            <div class="card">
-                <div class="card-header">
-                    <div class="card-icon coral">
-                        <i class="fas fa-circle-info"></i>
-                    </div>
-                    <div>
-                        <h2>Maklumat Sistem</h2>
-                        <p style="margin: 0; color: var(--color-text-secondary); font-size: 16px;">Versi, panduan dan sokongan teknikal</p>
-                    </div>
+        <section id="tab-download" class="tab-content">
+        <div class="card">
+            <div class="card-header">
+                <div class="card-icon coral">
+                    <i class="fas fa-download"></i>
                 </div>
-                
-                <div style="padding: var(--spacing-md); background: var(--color-bg-main); border-radius: var(--border-radius); margin-bottom: var(--spacing-md);">
-                    <h3 style="margin-bottom: var(--spacing-sm);">
-                        <i class="fas fa-code-branch" style="color: var(--color-highlight);"></i>
-                        Versi Sistem
-                    </h3>
-                    <p style="font-size: var(--font-size-lg); color: var(--color-text-primary);">
-                        <strong>v1.0.1</strong> - Perintis Apps
-                    </p>
-                </div>
-                
-                <div style="padding: var(--spacing-md); background: var(--color-bg-main); border-radius: var(--border-radius);">
-                    <h3 style="margin-bottom: var(--spacing-sm);">
-                        <i class="fas fa-headset" style="color: var(--color-mint);"></i>
-                        Sokongan Teknikal
-                    </h3>
-                    <p style="font-size: 16px; color: var(--color-text-secondary); line-height: 1.8;">
-                        Untuk sebarang pertanyaan atau bantuan teknikal, sila hubungi:<br>
-                        <strong>Sektor Pengurusan Sekolah, JPN Pahang</strong><br>
-                        📧 Email: sektorpengurusansekolahpahang@gmail.com<br>
-                        📞 Tel: 09-XXX XXXX
+                <div>
+                    <h2>Muat Turun Dokumen</h2>
+                    <p style="margin: 0; color: var(--color-text-secondary); font-size: 16px;">
+                        Dokumen rasmi PIBG untuk rujukan & muat turun
                     </p>
                 </div>
             </div>
-        </section>
-
+    
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4" style="margin-top: var(--spacing-md);">
+    
+                <!-- KOTAK 1 -->
+                <div class="card" style="text-align: center; padding: var(--spacing-lg);">
+                    <div class="card-icon coral" style="margin: 0 auto var(--spacing-md) auto;">
+                        <i class="fas fa-file-pdf"></i>
+                    </div>
+                    <h4 style="margin-bottom: var(--spacing-sm);">Borang Permohonan MAT PIBG</h4>
+                    <p style="font-size: 14px; color: var(--color-text-secondary); margin-bottom: var(--spacing-md); line-height: 1.6;">
+                        Borang rasmi permohonan Mesyuarat Agung Tahunan PIBG. Muat turun untuk rujukan, simpanan atau pengisian manual.
+                    </p>
+                    <a href="#" target="_blank" class="inline-block px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
+                        <i class="fas fa-download"></i> Muat Turun
+                    </a>
+                </div>
+    
+                <!-- KOTAK 2 -->
+                <div class="card" style="text-align: center; padding: var(--spacing-lg);">
+                    <div class="card-icon blue" style="margin: 0 auto var(--spacing-md) auto;">
+                        <i class="fas fa-file-lines"></i>
+                    </div>
+                    <h4 style="margin-bottom: var(--spacing-sm);">Panduan & Contoh Surat</h4>
+                    <p style="font-size: 14px; color: var(--color-text-secondary); margin-bottom: var(--spacing-md); line-height: 1.6;">
+                        Panduan lengkap beserta contoh surat permohonan, minit mesyuarat dan kertas cadangan.
+                    </p>
+                    <a href="#" target="_blank" class="inline-block px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
+                        <i class="fas fa-download"></i> Muat Turun
+                    </a>
+                </div>
+    
+                <!-- KOTAK 3 -->
+                <div class="card" style="text-align: center; padding: var(--spacing-lg);">
+                    <div class="card-icon purple" style="margin: 0 auto var(--spacing-md) auto;">
+                        <i class="fas fa-book"></i>
+                    </div>
+                    <h4 style="margin-bottom: var(--spacing-sm);">Dokumen Rujukan PIBG</h4>
+                    <p style="font-size: 14px; color: var(--color-text-secondary); margin-bottom: var(--spacing-md); line-height: 1.6;">
+                        Koleksi dokumen rujukan seperti garis panduan, peraturan dan undang-undang kecil PIBG.
+                    </p>
+                    <a href="#" target="_blank" class="inline-block px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
+                        <i class="fas fa-download"></i> Muat Turun
+                    </a>
+                </div>
+    
+            </div>
+        </div>
+    </section>
     </main>
 
     <!-- JS FILES (ikut susunan ini) -->
@@ -334,21 +338,5 @@
                 <p>Sila tunggu, jangan tutup window ini.</p>
             </div>
         </div>
-        </style>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
