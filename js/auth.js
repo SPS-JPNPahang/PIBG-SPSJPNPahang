@@ -142,32 +142,61 @@ const AuthUI = {
     },
 
     // ------------------------------
-    // Logout (pegawai / TP)
-    // ------------------------------
-    logout: function () {
-        // Clear tokens
-        Util.clearToken();
-        
-        // Clear session storage completely
-        sessionStorage.clear();
-        
-        // Clear any cached data
-        if (window.localStorage) {
-            localStorage.removeItem(CONFIG.TOKEN_KEY);
-            localStorage.removeItem(CONFIG.ROLE_KEY);
-        }
-        
-        notify.info("Anda telah log keluar.");
-        
-        // Force reload after clearing
-        setTimeout(() => {
-            location.reload(true); // true = force reload from server
-        }, 1000);
+// Logout (pegawai / TP)
+// ------------------------------
+logout: function () {
+    // Clear tokens
+    Util.clearToken();
+    
+    // Clear session storage completely
+    sessionStorage.clear();
+    
+    // Clear any cached data
+    if (window.localStorage) {
+        localStorage.removeItem(CONFIG.TOKEN_KEY);
+        localStorage.removeItem(CONFIG.ROLE_KEY);
     }
+    
+    // Hide all dashboards
+    const pegawaiDash = document.getElementById("pegawai-dashboard");
+    const tpDash = document.getElementById("tp-dashboard");
+    
+    if (pegawaiDash) pegawaiDash.classList.add("hidden");
+    if (tpDash) tpDash.classList.add("hidden");
+    
+    // Show login panels
+    const pegawaiLogin = document.getElementById("pegawai-login");
+    const tpLogin = document.getElementById("tp-login");
+    
+    if (pegawaiLogin) pegawaiLogin.classList.remove("hidden");
+    if (tpLogin) tpLogin.classList.remove("hidden");
+    
+    // Reset to Pegawai tab by default
+    const loginSubPegawai = document.getElementById('login-sub-pegawai');
+    const loginSubTP = document.getElementById('login-sub-tp');
+    const panelPegawai = document.getElementById('login-panel-pegawai');
+    const panelTP = document.getElementById('login-panel-tp');
+    
+    if (loginSubPegawai) {
+        loginSubPegawai.classList.add('active');
+        loginSubPegawai.style.color = 'var(--color-coral)';
+        loginSubPegawai.style.borderBottomColor = 'var(--color-coral)';
+    }
+    if (loginSubTP) {
+        loginSubTP.classList.remove('active');
+        loginSubTP.style.color = 'var(--color-text-secondary)';
+        loginSubTP.style.borderBottomColor = 'transparent';
+    }
+    if (panelPegawai) panelPegawai.classList.remove('hidden');
+    if (panelTP) panelTP.classList.add('hidden');
+    
+    notify.info("Anda telah log keluar.");
+}
 };
 
 // Auto initialize
 document.addEventListener("DOMContentLoaded", () => AuthUI.init());
+
 
 
 
