@@ -182,10 +182,10 @@
         
             <!-- SUBTAB (Petak Pilihan Portal) -->
             <div style="display:flex; gap:var(--spacing-sm); margin-bottom:var(--spacing-lg); border-bottom:2px solid var(--color-border);">
-              <button id="login-sub-pegawai" class="subtab-btn active" style="padding:var(--spacing-sm) var(--spacing-md); border:none; background:none; cursor:pointer; font-weight:600;">
+              <button id="login-sub-pegawai" class="subtab-btn active" style="padding:var(--spacing-sm) var(--spacing-md); border:none; background:none; cursor:pointer; font-weight:600; color:var(--color-coral); border-bottom:3px solid var(--color-coral); transition: all 0.3s;">
                 <i class="fas fa-user-tie"></i> Pegawai
               </button>
-              <button id="login-sub-tp" class="subtab-btn" style="padding:var(--spacing-sm) var(--spacing-md); border:none; background:none; cursor:pointer; font-weight:600;">
+              <button id="login-sub-tp" class="subtab-btn" style="padding:var(--spacing-sm) var(--spacing-md); border:none; background:none; cursor:pointer; font-weight:600; color:var(--color-text-secondary); border-bottom:3px solid transparent; transition: all 0.3s;">
                 <i class="fas fa-user-shield"></i> Timbalan Pengarah
               </button>
             </div>
@@ -200,12 +200,11 @@
               <div id="login-panel-tp" class="login-panel hidden">
                  <div id="tp-login"></div>
               </div>
-
-                <!-- DASHBOARD CONTAINERS (WAJIB ADA → DIGUNAKAN pegawai.js & tp.js) -->
-                <div id="pegawai-dashboard" class="hidden"></div>
-                <div id="tp-dashboard" class="hidden"></div>
-
             </div>
+        
+            <!-- DASHBOARD CONTAINERS (Di luar login-panels) -->
+            <div id="pegawai-dashboard" class="hidden"></div>
+            <div id="tp-dashboard" class="hidden"></div>
         
           </div>
         </section>
@@ -352,7 +351,76 @@
                 <p>Sila tunggu, jangan tutup window ini.</p>
             </div>
         </div>
-
+    <script>
+        feather.replace(); // aktifkan ikon
+        
+        // Subtab switching for Permohonan & Semakan
+        document.addEventListener('DOMContentLoaded', () => {
+            const subtabNew = document.getElementById('subtab-new');
+            const subtabCheck = document.getElementById('subtab-check');
+            const contentNew = document.getElementById('subtab-new-content');
+            const contentCheck = document.getElementById('subtab-check-content');
+            
+            if (subtabNew && subtabCheck) {
+                subtabNew.addEventListener('click', () => {
+                    subtabNew.classList.add('active');
+                    subtabCheck.classList.remove('active');
+                    contentNew.classList.remove('hidden');
+                    contentCheck.classList.add('hidden');
+                    subtabNew.style.color = 'var(--color-coral)';
+                    subtabNew.style.borderBottomColor = 'var(--color-coral)';
+                    subtabCheck.style.color = 'var(--color-text-secondary)';
+                    subtabCheck.style.borderBottomColor = 'transparent';
+                });
+                
+                subtabCheck.addEventListener('click', () => {
+                    subtabCheck.classList.add('active');
+                    subtabNew.classList.remove('active');
+                    contentCheck.classList.remove('hidden');
+                    contentNew.classList.add('hidden');
+                    subtabCheck.style.color = 'var(--color-blue)';
+                    subtabCheck.style.borderBottomColor = 'var(--color-blue)';
+                    subtabNew.style.color = 'var(--color-text-secondary)';
+                    subtabNew.style.borderBottomColor = 'transparent';
+                });
+                
+                // Initialize active state
+                subtabNew.style.color = 'var(--color-coral)';
+                subtabNew.style.borderBottomColor = 'var(--color-coral)';
+            }
+    
+            // Subtab switching for Login (Pegawai / TP)
+            const loginSubPegawai = document.getElementById('login-sub-pegawai');
+            const loginSubTP = document.getElementById('login-sub-tp');
+            const panelPegawai = document.getElementById('login-panel-pegawai');
+            const panelTP = document.getElementById('login-panel-tp');
+            
+            if (loginSubPegawai && loginSubTP && panelPegawai && panelTP) {
+                loginSubPegawai.addEventListener('click', () => {
+                    loginSubPegawai.classList.add('active');
+                    loginSubTP.classList.remove('active');
+                    panelPegawai.classList.remove('hidden');
+                    panelTP.classList.add('hidden');
+                    loginSubPegawai.style.color = 'var(--color-coral)';
+                    loginSubPegawai.style.borderBottomColor = 'var(--color-coral)';
+                    loginSubTP.style.color = 'var(--color-text-secondary)';
+                    loginSubTP.style.borderBottomColor = 'transparent';
+                });
+                
+                loginSubTP.addEventListener('click', () => {
+                    loginSubTP.classList.add('active');
+                    loginSubPegawai.classList.remove('active');
+                    panelTP.classList.remove('hidden');
+                    panelPegawai.classList.add('hidden');
+                    loginSubTP.style.color = 'var(--color-blue)';
+                    loginSubTP.style.borderBottomColor = 'var(--color-blue)';
+                    loginSubPegawai.style.color = 'var(--color-text-secondary)';
+                    loginSubPegawai.style.borderBottomColor = 'transparent';
+                });
+            }
+        });
+    </script>
 </body>
 </html>
+
 
