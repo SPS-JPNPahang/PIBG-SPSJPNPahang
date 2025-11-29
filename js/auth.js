@@ -121,8 +121,14 @@ const AuthUI = {
         // Login success
         Util.saveToken(res.token, detectedRole);
 
-        document.getElementById(loginContainerId).classList.add("hidden");
-        document.getElementById(dashboardContainerId).classList.remove("hidden");
+        // Pastikan tab-login sendiri tidak hidden
+        const loginSection = document.getElementById("tab-login");
+        if (loginSection) loginSection.classList.add("active-tab");
+        
+        // Hide login form, show dashboard
+        document.getElementById(loginContainerId)?.classList.add("hidden");
+        document.getElementById(dashboardContainerId)?.classList.remove("hidden");
+
 
         const roleTitle = detectedRole === "pegawai" ? "Pegawai Penyemak" : "Timbalan Pengarah";
         notify.success(`Selamat datang, ${roleTitle}!`);
@@ -162,5 +168,6 @@ const AuthUI = {
 
 // Auto initialize
 document.addEventListener("DOMContentLoaded", () => AuthUI.init());
+
 
 
