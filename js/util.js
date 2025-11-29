@@ -210,50 +210,55 @@ formatDateTime: function (timestamp) {
             },
 
 
-    // ---------- DATE & TIME FORMATTING (Malay Standard) ----------
-    formatMalayDate: function(dateInput) {
-        if (!dateInput) return '';
-        try {
-            let d;
-            if (dateInput instanceof Date) {
-                d = dateInput;
-            } else if (typeof dateInput === 'string') {
-                const cleanDate = dateInput.split('T')[0];
-                d = new Date(cleanDate + 'T00:00:00');
-            } else {
+    // ---------- Format tarikh Melayu (SIMPLE - no timezone issues) ----------
+        formatMalayDate: function(dateInput) {
+            if (!dateInput) return '';
+            try {
+                // Extract date string only (remove time if exists)
+                const dateStr = String(dateInput).split('T')[0];
+                
+                // Split YYYY-MM-DD
+                const parts = dateStr.split('-');
+                if (parts.length !== 3) return '';
+                
+                const year = parts[0];
+                const monthNum = parseInt(parts[1], 10);
+                const day = parseInt(parts[2], 10);
+                
+                const months = ['Januari', 'Februari', 'Mac', 'April', 'Mei', 'Jun', 
+                               'Julai', 'Ogos', 'September', 'Oktober', 'November', 'Disember'];
+                
+                const monthName = months[monthNum - 1] || '';
+                
+                return `${day} ${monthName} ${year}`;
+            } catch (e) {
                 return '';
             }
-            if (isNaN(d.getTime())) return '';
-            const months = ['Januari', 'Februari', 'Mac', 'April', 'Mei', 'Jun', 
-                          'Julai', 'Ogos', 'September', 'Oktober', 'November', 'Disember'];
-            const day = d.getDate();
-            const month = months[d.getMonth()];
-            const year = d.getFullYear();
-            return day + ' ' + month + ' ' + year;
-        } catch (e) {
-            return '';
-        }
-    },
-    
-    formatMalayDay: function(dateInput) {
-        if (!dateInput) return '';
-        try {
-            let d;
-            if (dateInput instanceof Date) {
-                d = dateInput;
-            } else if (typeof dateInput === 'string') {
-                const cleanDate = dateInput.split('T')[0];
-                d = new Date(cleanDate + 'T00:00:00');
-            } else {
+        },
+        
+        formatMalayDay: function(dateInput) {
+            if (!dateInput) return '';
+            try {
+                // Extract date string only
+                const dateStr = String(dateInput).split('T')[0];
+                
+                // Split YYYY-MM-DD
+                const parts = dateStr.split('-');
+                if (parts.length !== 3) return '';
+                
+                const year = parseInt(parts[0], 10);
+                const month = parseInt(parts[1], 10) - 1; // JS months are 0-indexed
+                const day = parseInt(parts[2], 10);
+                
+                // Only use Date object for day calculation (but force local)
+                const d = new Date(year, month, day);
+                
+                const days = ['Ahad', 'Isnin', 'Selasa', 'Rabu', 'Khamis', 'Jumaat', 'Sabtu'];
+                return days[d.getDay()];
+            } catch (e) {
                 return '';
             }
-            if (isNaN(d.getTime())) return '';
-            const days = ['Ahad', 'Isnin', 'Selasa', 'Rabu', 'Khamis', 'Jumaat', 'Sabtu'];
-            return days[d.getDay()];
-        } catch (e) {
-            return '';
-        }
-    },
+        },
     
        // ---------- Format masa untuk display (12-jam, Melayu) ----------
     // Input boleh: "HH:MM", "HH.MM", "930", 18.5, 0.75 (Excel fraction), 1887.07, Date object
@@ -604,6 +609,7 @@ function showNotification(type, message) {
 // Expose to global
 window.Util = Util;
 window.notify = notify;
+
 
 
 
