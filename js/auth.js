@@ -10,45 +10,52 @@ const AuthUI = {
     },
 
     // ------------------------------
-    // UI → Unified Login (Pegawai & TP)
+    // UI → Single Unified Login
     // ------------------------------
     renderUnifiedLogin: function () {
-        // Render for Pegawai tab
-        const pegawaiEl = document.getElementById("pegawai-login");
-        if (pegawaiEl) {
-            pegawaiEl.innerHTML = this.getLoginHTML("Portal Pegawai");
-            this.attachLoginHandler("pegawai-login", "pegawai-dashboard");
-        }
-
-        // Render for TP tab
-        const tpEl = document.getElementById("tp-login");
-        if (tpEl) {
-            tpEl.innerHTML = this.getLoginHTML("Portal Timbalan Pengarah");
-            this.attachLoginHandler("tp-login", "tp-dashboard");
+        const loginEl = document.getElementById("unified-login");
+        if (loginEl) {
+            loginEl.innerHTML = this.getLoginHTML();
+            this.attachLoginHandler();
         }
     },
 
     // ------------------------------
     // HTML Template for Login Form
     // ------------------------------
-    getLoginHTML: function (title) {
+    getLoginHTML: function () {
         return `
-            <div class="p-4 bg-white rounded shadow max-w-sm">
-                <h3 class="font-semibold mb-3 text-lg">${title}</h3>
+            <div class="p-6 bg-white rounded-lg shadow-md max-w-md mx-auto">
+                <div class="mb-6 text-center">
+                    <div class="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full mb-4">
+                        <i class="fas fa-lock text-white text-2xl"></i>
+                    </div>
+                    <h3 class="font-semibold text-xl text-gray-800">Portal Pegawai</h3>
+                    <p class="text-sm text-gray-500 mt-1">Sila masukkan kata laluan anda</p>
+                </div>
                 
-                <div class="mb-3">
-                    <label class="block text-sm font-medium mb-1">Kata Laluan</label>
-                    <input type="password" placeholder="Masukkan kata laluan"
-                        class="login-password border rounded px-3 py-2 w-full" />
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        <i class="fas fa-key text-gray-400"></i> Kata Laluan
+                    </label>
+                    <input type="password" 
+                           placeholder="Masukkan kata laluan"
+                           id="unified-password"
+                           class="border border-gray-300 rounded-lg px-4 py-3 w-full focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition" />
                 </div>
 
-                <button class="login-btn w-full bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition">
+                <button id="unified-login-btn" 
+                        class="w-full bg-gradient-to-r from-blue-600 to-blue-700 text-white px-4 py-3 rounded-lg hover:from-blue-700 hover:to-blue-800 transition font-medium shadow-md hover:shadow-lg">
                     <i class="fas fa-sign-in-alt"></i> Log Masuk
                 </button>
 
-                <div class="mt-3 text-xs text-gray-600">
-                    <i class="fas fa-info-circle"></i> 
-                    Sila masukkan password anda dengan betul.
+                <div class="mt-4 p-3 bg-blue-50 rounded-lg border border-blue-100">
+                    <div class="flex items-start gap-2">
+                        <i class="fas fa-info-circle text-blue-600 mt-0.5"></i>
+                        <p class="text-xs text-blue-800">
+                            Sistem akan mengenal pasti peranan anda secara automatik berdasarkan kata laluan yang dimasukkan.
+                        </p>
+                    </div>
                 </div>
             </div>
         `;
@@ -57,22 +64,19 @@ const AuthUI = {
     // ------------------------------
     // Attach Login Handler
     // ------------------------------
-    attachLoginHandler: function (loginContainerId, dashboardContainerId) {
-        const container = document.getElementById(loginContainerId);
-        if (!container) return;
-
-        const passwordInput = container.querySelector(".login-password");
-        const loginBtn = container.querySelector(".login-btn");
+    attachLoginHandler: function () {
+        const passwordInput = document.getElementById("unified-password");
+        const loginBtn = document.getElementById("unified-login-btn");
 
         if (!passwordInput || !loginBtn) return;
 
         // Click handler
-        loginBtn.onclick = () => this.handleLogin(passwordInput, loginContainerId, dashboardContainerId);
+        loginBtn.onclick = () => this.handleLogin(passwordInput);
 
         // Enter key handler
         passwordInput.addEventListener("keypress", (e) => {
             if (e.key === "Enter") {
-                this.handleLogin(passwordInput, loginContainerId, dashboardContainerId);
+                this.handleLogin(passwordInput);
             }
         });
     },
@@ -80,7 +84,7 @@ const AuthUI = {
     // ------------------------------
     // Handle Login Logic
     // ------------------------------
-    handleLogin: async function (passwordInput, loginContainerId, dashboardContainerId) {
+    handleLogin: async function (passwordInput) {
         const password = passwordInput.value.trim();
 
         if (!password) {
@@ -115,20 +119,21 @@ const AuthUI = {
 
         // Login failed for both roles
         if (!detectedRole) {
+            passwordInput.value = ""; // Clear password
             return notify.error("Kata laluan tidak sah.");
         }
 
         // Login success
         Util.saveToken(res.token, detectedRole);
 
-        // Pastikan tab-login sendiri tidak hidden
-        const loginSection = document.getElementById("tab-login");
-        if (loginSection) loginSection.classList.add("active-tab");
-        
-        // Hide login form, show dashboard
-        document.getElementById(loginContainerId)?.classList.add("hidden");
-        document.getElementById(dashboardContainerId)?.classList.remove("hidden");
+        // Hide login panel
+        const loginPanel = document.getElementById("unified-login-panel");
+        if (loginPanel) loginPanel.classList.add("hidden");
 
+        // Show appropriate dashboard
+        const dashboardId = detectedRole === "pegawai" ? "pegawai-dashboard" : "tp-dashboard";
+        const dashboard = document.getElementById(dashboardId);
+        if (dashboard) dashboard.classList.remove("hidden");
 
         const roleTitle = detectedRole === "pegawai" ? "Pegawai Penyemak" : "Timbalan Pengarah";
         notify.success(`Selamat datang, ${roleTitle}!`);
@@ -142,61 +147,39 @@ const AuthUI = {
     },
 
     // ------------------------------
-// Logout (pegawai / TP)
-// ------------------------------
-logout: function () {
-    // Clear tokens
-    Util.clearToken();
-    
-    // Clear session storage completely
-    sessionStorage.clear();
-    
-    // Clear any cached data
-    if (window.localStorage) {
-        localStorage.removeItem(CONFIG.TOKEN_KEY);
-        localStorage.removeItem(CONFIG.ROLE_KEY);
+    // Logout
+    // ------------------------------
+    logout: function () {
+        // Clear tokens
+        Util.clearToken();
+        
+        // Clear session storage completely
+        sessionStorage.clear();
+        
+        // Clear any cached data
+        if (window.localStorage) {
+            localStorage.removeItem(CONFIG.TOKEN_KEY);
+            localStorage.removeItem(CONFIG.ROLE_KEY);
+        }
+        
+        // Hide all dashboards
+        const pegawaiDash = document.getElementById("pegawai-dashboard");
+        const tpDash = document.getElementById("tp-dashboard");
+        
+        if (pegawaiDash) pegawaiDash.classList.add("hidden");
+        if (tpDash) tpDash.classList.add("hidden");
+        
+        // Show login panel
+        const loginPanel = document.getElementById("unified-login-panel");
+        if (loginPanel) loginPanel.classList.remove("hidden");
+        
+        // Clear password field
+        const passwordInput = document.getElementById("unified-password");
+        if (passwordInput) passwordInput.value = "";
+        
+        notify.info("Anda telah log keluar.");
     }
-    
-    // Hide all dashboards
-    const pegawaiDash = document.getElementById("pegawai-dashboard");
-    const tpDash = document.getElementById("tp-dashboard");
-    
-    if (pegawaiDash) pegawaiDash.classList.add("hidden");
-    if (tpDash) tpDash.classList.add("hidden");
-    
-    // Show login panels
-    const pegawaiLogin = document.getElementById("pegawai-login");
-    const tpLogin = document.getElementById("tp-login");
-    
-    if (pegawaiLogin) pegawaiLogin.classList.remove("hidden");
-    if (tpLogin) tpLogin.classList.remove("hidden");
-    
-    // Reset to Pegawai tab by default
-    const loginSubPegawai = document.getElementById('login-sub-pegawai');
-    const loginSubTP = document.getElementById('login-sub-tp');
-    const panelPegawai = document.getElementById('login-panel-pegawai');
-    const panelTP = document.getElementById('login-panel-tp');
-    
-    if (loginSubPegawai) {
-        loginSubPegawai.classList.add('active');
-        loginSubPegawai.style.color = 'var(--color-coral)';
-        loginSubPegawai.style.borderBottomColor = 'var(--color-coral)';
-    }
-    if (loginSubTP) {
-        loginSubTP.classList.remove('active');
-        loginSubTP.style.color = 'var(--color-text-secondary)';
-        loginSubTP.style.borderBottomColor = 'transparent';
-    }
-    if (panelPegawai) panelPegawai.classList.remove('hidden');
-    if (panelTP) panelTP.classList.add('hidden');
-    
-    notify.info("Anda telah log keluar.");
-}
 };
 
 // Auto initialize
 document.addEventListener("DOMContentLoaded", () => AuthUI.init());
-
-
-
-
