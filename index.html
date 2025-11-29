@@ -352,76 +352,7 @@
                 <p>Sila tunggu, jangan tutup window ini.</p>
             </div>
         </div>
-    
-    <!-- FINAL SCRIPT (STABLE, CLEAN, 100% BERFUNGSI) -->
-        <script>
-        document.addEventListener("DOMContentLoaded", () => {
-        
-            // -----------------------------
-            // LOGIN SUBTAB SWITCHER
-            // -----------------------------
-            const btnPeg = document.getElementById("login-sub-pegawai");
-            const btnTP  = document.getElementById("login-sub-tp");
-            const panelPeg = document.getElementById("login-panel-pegawai");
-            const panelTP  = document.getElementById("login-panel-tp");
-        
-            function showPegawai() {
-                btnPeg.classList.add("active");
-                btnTP.classList.remove("active");
-        
-                panelPeg.classList.remove("hidden");
-                panelTP.classList.add("hidden");
-        
-                // hide dashboards
-                document.getElementById("pegawai-dashboard")?.classList.add("hidden");
-                document.getElementById("tp-dashboard")?.classList.add("hidden");
-            }
-        
-            function showTP() {
-                btnTP.classList.add("active");
-                btnPeg.classList.remove("active");
-        
-                panelTP.classList.remove("hidden");
-                panelPeg.classList.add("hidden");
-        
-                // hide dashboards
-                document.getElementById("pegawai-dashboard")?.classList.add("hidden");
-                document.getElementById("tp-dashboard")?.classList.add("hidden");
-            }
-        
-            // Assign clicks
-            btnPeg.addEventListener("click", showPegawai);
-            btnTP.addEventListener("click", showTP);
-        
-            // -----------------------------
-            // TAB LOGIN → RESET UI
-            // -----------------------------
-            const loginTabBtn = document.querySelector('[data-tab="login"]');
-            loginTabBtn.addEventListener("click", () => {
-        
-                // Render form semula
-                if (window.AuthUI?.renderUnifiedLogin) {
-                    AuthUI.renderUnifiedLogin();
-                }
-        
-                // Re-attach login handler
-                if (window.AuthUI?.attachLoginHandler) {
-                    AuthUI.attachLoginHandler("pegawai-login", "pegawai-dashboard");
-                    AuthUI.attachLoginHandler("tp-login", "tp-dashboard");
-                }
-        
-                // Default: Pegawai tab
-                showPegawai();
-        
-                // Hide both dashboards
-                document.getElementById("pegawai-dashboard")?.classList.add("hidden");
-                document.getElementById("tp-dashboard")?.classList.add("hidden");
-            });
-        
-            // First load = Pegawai
-            showPegawai();
-        });
-        </script>
 
 </body>
 </html>
+
