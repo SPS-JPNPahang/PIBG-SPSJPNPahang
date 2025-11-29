@@ -111,7 +111,29 @@ const Util = {
         const d = new Date(timestamp);
         return `${Util.formatDateDisplay(Util.formatDate(d))} ${d.getHours().toString().padStart(2, '0')}:${d.getMinutes().toString().padStart(2, '0')}`;
     },
+    // ---------- Format masa untuk display ----------
+formatDateTime: function (timestamp) {
+    if (!timestamp) return '-';
+    const d = new Date(timestamp);
+    return `${Util.formatDateDisplay(Util.formatDate(d))} ${d.getHours().toString().padStart(2, '0')}:${d.getMinutes().toString().padStart(2, '0')}`;
+},
 
+            // ---------- Format tarikh dari ISO string (Google Sheets) ke DD/MM/YYYY ----------
+            formatTarikhMAT: function(dateString) {
+                if (!dateString) return '-';
+                
+                try {
+                    // Remove time and timezone info (2026-04-11T16:00:00.000Z -> 2026-04-11)
+                    const dateOnly = dateString.split('T')[0];
+                    
+                    // Parse and format to DD/MM/YYYY
+                    const [year, month, day] = dateOnly.split('-');
+                    return `${day}/${month}/${year}`;
+                } catch (e) {
+                    return dateString; // Return original if error
+                }
+            },
+            
             // ---------- Normalize time value coming from Sheet/frontend ----------
             // Accepts "HH:MM", "HH.MM", numbers (Excel serial or HHMM like 930 or 1887.07).
             // Returns string "HH:MM" or '' when not possible.
@@ -582,6 +604,7 @@ function showNotification(type, message) {
 // Expose to global
 window.Util = Util;
 window.notify = notify;
+
 
 
 
