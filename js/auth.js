@@ -48,7 +48,7 @@ const AuthUI = {
 
                 <div class="mt-3 text-xs text-gray-600">
                     <i class="fas fa-info-circle"></i> 
-                    Sistem akan mengenal pasti role anda secara automatik.
+                    Sila masukkan password anda dengan betul.
                 </div>
             </div>
         `;
@@ -162,4 +162,5 @@ const AuthUI = {
 
 // Auto initialize
 document.addEventListener("DOMContentLoaded", () => AuthUI.init());
+
 
