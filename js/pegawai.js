@@ -163,7 +163,7 @@ const PegawaiUI = {
       const sekolah = row.NamaSekolah || '';
       const kod = row.KodSekolah || '';
       const daerah = row.Daerah || '';
-      const tarikh = row.TarikhMAT || '';
+      const tarikh = Util.formatTarikhMAT(row.TarikhMAT) || '-';
       const status = row.Status || '';
       const catatan = row.CatatanQuery || '';
 
@@ -563,9 +563,3 @@ const PegawaiUI = {
 
 // auto init
 document.addEventListener('DOMContentLoaded', () => PegawaiUI.init());
-
-
-
-
-
-
