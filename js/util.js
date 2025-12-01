@@ -610,14 +610,22 @@ function showNotification(type, message) {
         notify.info(message);
     }
 }
+function enforceMax5MB(selector) {
+  document.addEventListener('change', (e) => {
+    const input = e.target;
+    if (!input.matches(selector)) return;
+
+    const file = input.files && input.files[0];
+    if (!file) return;
+
+    if (file.size > 5 * 1024 * 1024) { // 5MB
+      alert("Fail melebihi 5MB. Sila pilih fail lain.");
+      input.value = "";
+    }
+  });
+}
+
 
 // Expose to global
 window.Util = Util;
 window.notify = notify;
-
-
-
-
-
-
-
