@@ -192,6 +192,7 @@ const FormUI = {
                         <i class="fas fa-file-pdf text-red-600 mr-2"></i>
                         Muat Naik Dokumen (PDF sahaja) <span class="text-red-500">*</span>
                     </h3>
+                    <p class="text-sm text-gray-600 mb-3">* Setiap fail disarankan tidak melebihi <strong>3MB</strong>.</p>
                     <div class="grid md:grid-cols-3 gap-4">
                         <div>
                             <label class="block text-sm font-medium mb-1">1. Surat Permohonan</label>
@@ -222,6 +223,24 @@ const FormUI = {
         `;
 
         document.getElementById("btn-hantar").onclick = () => this.submitForm();
+        // Warning jika fail melebihi 3MB (tetapi masih dibenarkan)
+['f-surat','f-minit','f-kertas'].forEach(id => {
+    const input = document.getElementById(id);
+    if (!input) return;
+
+    input.addEventListener('change', () => {
+        const file = input.files[0];
+        if (!file) return;
+
+        if (file.size > 3 * 1024 * 1024) {
+            notify.warning(
+                "Saiz fail melebihi 3MB. Disarankan kecilkan fail untuk elakkan masalah muat naik.",
+                { timeout: 6000 }
+            );
+        }
+    });
+});
+
     },
     
     populateYearDropdown: function() {
@@ -592,4 +611,5 @@ resetAllFields: function() {
 
 // Auto initialize
 document.addEventListener("DOMContentLoaded", () => FormUI.init());
+
 
