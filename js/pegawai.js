@@ -21,7 +21,9 @@ const PegawaiUI = {
         <div class="flex items-center justify-between mb-4 pb-3 border-b">
           <div>
             <h3 class="font-semibold text-lg">Dashboard Pegawai Penyemak</h3>
-            <p class="text-sm text-gray-600">Pengurusan permohonan MAT PIBG</p>
+            <p class="text-sm text-gray-600">
+              MAKLUMAN : SURAT PERASMI MAT TERKINI → BELUM ADA REKOD
+            </p>
           </div>
           <div class="flex gap-2">
             <button id="peg-refresh" class="px-3 py-1 border rounded hover:bg-gray-50">
@@ -109,6 +111,25 @@ const PegawaiUI = {
     }
 
     const allData = res.data || [];
+    // ===== MAKLUMAN SURAT PERASMI TERKINI (MAX JILID → MAX BIL) =====
+    const suratData = allData
+      .map(r => ({ j: Number(r.Jilid), b: Number(r.BilSurat) }))
+      .filter(x => Number.isFinite(x.j) && Number.isFinite(x.b));
+    
+    if (suratData.length) {
+      const maxJ = Math.max(...suratData.map(x => x.j));
+      const maxB = Math.max(
+        ...suratData.filter(x => x.j === maxJ).map(x => x.b)
+      );
+    
+      const info = document.querySelector(
+        '#pegawai-dashboard .border-b p'
+      );
+      if (info) {
+        info.textContent =
+          `MAKLUMAN : SURAT PERASMI MAT TERKINI → JILID ${maxJ} DAN BIL ${maxB}`;
+      }
+    }
 
     // Filter by status
     const dataBaru = allData.filter(r => r.Status === 'Baru');
@@ -328,7 +349,17 @@ const PegawaiUI = {
                 <p class="font-semibold">${app.JawatanPerasmi || '-'}</p>
               </div>
             </div>
-
+            <!-- Maklumat Penghubung -->
+            <div class="grid grid-cols-2 gap-4 mb-4 p-3 bg-yellow-50 rounded">
+              <div>
+                <p class="text-sm text-gray-600">Pegawai Penghubung</p>
+                <p class="font-semibold">${app.NamaPenghubung || '-'}</p>
+              </div>
+              <div>
+                <p class="text-sm text-gray-600">No. Telefon Penghubung</p>
+                <p class="font-semibold">${app.NoTelefon || '-'}</p>
+              </div>
+            </div>
             <!-- Dokumen Permohonan -->
             <div class="mt-4 pt-3 border-t">
               <h4 class="font-semibold mb-2">Dokumen Permohonan</h4>
@@ -563,3 +594,4 @@ const PegawaiUI = {
 
 // auto init
 document.addEventListener('DOMContentLoaded', () => PegawaiUI.init());
+
