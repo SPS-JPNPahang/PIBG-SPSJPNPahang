@@ -349,17 +349,6 @@ const PegawaiUI = {
                 <p class="font-semibold">${app.JawatanPerasmi || '-'}</p>
               </div>
             </div>
-            <!-- Maklumat Penghubung -->
-            <div class="grid grid-cols-2 gap-4 mb-4 p-3 bg-yellow-50 rounded">
-              <div>
-                <p class="text-sm text-gray-600">Pegawai Penghubung</p>
-                <p class="font-semibold">${app.NamaPenghubung || '-'}</p>
-              </div>
-              <div>
-                <p class="text-sm text-gray-600">No. Telefon Penghubung</p>
-                <p class="font-semibold">${app.NoTelefon || '-'}</p>
-              </div>
-            </div>
             <!-- Dokumen Permohonan -->
             <div class="mt-4 pt-3 border-t">
               <h4 class="font-semibold mb-2">Dokumen Permohonan</h4>
@@ -594,4 +583,5 @@ const PegawaiUI = {
 
 // auto init
 document.addEventListener('DOMContentLoaded', () => PegawaiUI.init());
+
 
