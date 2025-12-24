@@ -195,7 +195,7 @@ const FormUI = {
                     <p class="text-sm text-gray-600 mb-3">* Setiap fail disarankan tidak melebihi <strong>3MB</strong>.</p>
                     <div class="grid md:grid-cols-3 gap-4">
                         <div>
-                            <label class="block text-sm font-medium mb-1">1. Surat Permohonan</label>
+                            <label class="block text-sm font-medium mb-1">1. Surat & Borang Permohonan</label>
                             <input id="f-surat" type="file" accept="application/pdf" class="w-full text-sm border border-gray-300 rounded-lg p-2">
                         </div>
                         <div>
@@ -611,5 +611,6 @@ resetAllFields: function() {
 
 // Auto initialize
 document.addEventListener("DOMContentLoaded", () => FormUI.init());
+
 
 
