@@ -362,42 +362,41 @@ const FormUI = {
             },
             
             disable: [
-                    function(date) {
+            function(date) {
 
-                        // === OVERRIDE TARIKH KHAS (PAKSA BUKA) ===
-                        if (isOverrideDate(date)) {
-                            return false; // ENABLE walaupun langgar peraturan lain
-                        }
+                // ✅ TARIKH KHAS → HIDUP seperti Ahad
+                if (isOverrideDate(date)) {
+                    return false;
+                }
 
-                        const day = date.getDay(); // 0=Ahad, 6=Sabtu
+                const day = date.getDay(); // 0=Ahad, 6=Sabtu
 
-                        // Block Monday-Friday
-                        if (day >= 1 && day <= 5) {
-                            return true;
-                        }
+                // ❌ Isnin–Jumaat (selain tarikh khas)
+                if (day >= 1 && day <= 5) {
+                    return true;
+                }
 
-                        // Allow Sunday
-                        if (day === 0) {
-                            return false;
-                        }
+                // ✅ Ahad
+                if (day === 0) {
+                    return false;
+                }
 
-                        // Saturday - only EVEN weeks
-                        if (day === 6) {
-                            const dateNum = date.getDate();
-                            const firstDayOfMonth = new Date(
-                                date.getFullYear(),
-                                date.getMonth(),
-                                1
-                            ).getDay();
+                // ✅ Sabtu minggu genap sahaja
+                if (day === 6) {
+                    const dateNum = date.getDate();
+                    const firstDay = new Date(
+                        date.getFullYear(),
+                        date.getMonth(),
+                        1
+                    ).getDay();
 
-                            const weekNumber = Math.ceil((dateNum + firstDayOfMonth) / 7);
+                    const weekNumber = Math.ceil((dateNum + firstDay) / 7);
+                    return ![2, 4].includes(weekNumber);
+                }
 
-                            return ![2, 4].includes(weekNumber);
-                        }
-
-                        return false;
-                    }
-                ],
+                return false;
+            }
+            ],
             
             onChange: function(selectedDates, dateStr) {
                 if (selectedDates.length > 0) {
@@ -630,3 +629,5 @@ resetAllFields: function() {
 
 // Auto initialize
 document.addEventListener("DOMContentLoaded", () => FormUI.init());
+
+
