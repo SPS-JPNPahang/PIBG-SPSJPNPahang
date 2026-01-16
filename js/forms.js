@@ -330,7 +330,20 @@ const FormUI = {
             min: minDate.toISOString().split('T')[0],
             max: maxDate.toISOString().split('T')[0]
         });
-        
+        // ===== OVERRIDE TARIKH KHAS (2026 SAHAJA) =====
+        const overrideRanges2026 = [
+            { start: '2026-02-16', end: '2026-02-20' },
+            { start: '2026-03-19', end: '2026-03-29' }
+        ];
+
+        function isOverrideDate(date) {
+            const y = date.getFullYear();
+            if (y !== 2026) return false;
+
+            const d = date.toISOString().split('T')[0];
+            return overrideRanges2026.some(r => d >= r.start && d <= r.end);
+        }
+
         flatpickr("#f-tarikhmat", {
             minDate: minDate,
             maxDate: maxDate,
@@ -349,36 +362,42 @@ const FormUI = {
             },
             
             disable: [
-                function(date) {
-                    const day = date.getDay(); // 0=Ahad, 6=Sabtu
-                    
-                    // Block Monday-Friday (1-5)
-                    if (day >= 1 && day <= 5) {
-                        return true; // DISABLE weekdays
-                    }
-                    
-                    // Allow Sunday (0)
-                    if (day === 0) {
-                        return false; // ENABLE Ahad
-                    }
-                    
-                    // Saturday (6) - only allow EVEN weeks (2nd, 4th)
-                    if (day === 6) {
-                        const dateNum = date.getDate();
-                        const firstDayOfMonth = new Date(date.getFullYear(), date.getMonth(), 1).getDay();
-                        const weekNumber = Math.ceil((dateNum + firstDayOfMonth) / 7);
-                        
-                        // Allow week 2 and 4 only (EVEN weeks)
-                        if ([2, 4].includes(weekNumber)) {
-                            return false; // ENABLE Sabtu minggu genap
-                        } else {
-                            return true; // DISABLE Sabtu minggu ganjil
+                    function(date) {
+
+                        // === OVERRIDE TARIKH KHAS (PAKSA BUKA) ===
+                        if (isOverrideDate(date)) {
+                            return false; // ENABLE walaupun langgar peraturan lain
                         }
+
+                        const day = date.getDay(); // 0=Ahad, 6=Sabtu
+
+                        // Block Monday-Friday
+                        if (day >= 1 && day <= 5) {
+                            return true;
+                        }
+
+                        // Allow Sunday
+                        if (day === 0) {
+                            return false;
+                        }
+
+                        // Saturday - only EVEN weeks
+                        if (day === 6) {
+                            const dateNum = date.getDate();
+                            const firstDayOfMonth = new Date(
+                                date.getFullYear(),
+                                date.getMonth(),
+                                1
+                            ).getDay();
+
+                            const weekNumber = Math.ceil((dateNum + firstDayOfMonth) / 7);
+
+                            return ![2, 4].includes(weekNumber);
+                        }
+
+                        return false;
                     }
-                    
-                    return false;
-                }
-            ],
+                ],
             
             onChange: function(selectedDates, dateStr) {
                 if (selectedDates.length > 0) {
@@ -611,6 +630,3 @@ resetAllFields: function() {
 
 // Auto initialize
 document.addEventListener("DOMContentLoaded", () => FormUI.init());
-
-
-
